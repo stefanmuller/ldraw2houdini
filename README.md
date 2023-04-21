@@ -2,8 +2,23 @@
 
 Import ldraw files directly into houdini!
 
-You can either source individual parts with the **Brickini Ldraw Part HDA** or even build entire models with a one button shelf tool!
+You can either source individual parts with the **Brickini Ldraw Part HDA** or import entire models with a one button shelf tool!
 
+## Features
+- import individual bricks & entire models
+- logo on studs!
+- color support (8 bit ldraw colors are converted to floating point)
+
+## To-do
+- mpd file support
+- imperfect alignment
+- resolve $HOME etc variables
+- some .ldr like crocodile cage don't fully work?
+- gap (scale normalized)
+- slope texture
+- instancing support
+- karma material for bricks, transparent, rubber, chrome
+- add simple solaris example file for rendering
 
 ## Installation
 
@@ -31,8 +46,20 @@ You can either source individual parts with the **Brickini Ldraw Part HDA** or e
 
 ### import an entire model
 
-1. Press **Ldraw Model** from the Brickini shelf toolbar
-2. choose a ldraw model file
-3. aar, matey!
+1. Add the Brickini Shelf to your toolbar 
+2. Click **Ldraw Model**
+3. choose a ldraw model file
+4. aar, matey!
 
 ![forbidden island set in the houdini viewport](/resources/help/brickini_ldraw_model.jpg)
+
+## Resources
+
+LDraw Official Model Repository
+[Ldraw OMR](https://omr.ldraw.org/)  
+Official sets made in ldraw eurobricks thread
+[Eurobricks Thread](https://www.eurobricks.com/forum/index.php?/forums/topic/48285-key-topic-official-lego-sets-made-in-ldraw/)
+
+## If you like this and want to support me
+
+you can buy me a coffee :) [Buy Me a Coffee](https://www.buymeacoffee.com/stefanmuller)
