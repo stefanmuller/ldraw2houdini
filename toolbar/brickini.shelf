@@ -11,8 +11,11 @@
 
   <tool name="ldraw_model" label="Ldraw Model" icon="brickini_import.png">
     <helpText><![CDATA[Import .ldr model files]]></helpText>
-    <script scriptType="python"><![CDATA[import ldraw_build_model
-ldraw_build_model.build_model()
+    <script scriptType="python"><![CDATA[import ldraw
+import importlib
+
+importlib.reload(ldraw)
+ldraw.main()
    
    ]]></script>
   </tool>

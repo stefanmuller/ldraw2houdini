@@ -4,21 +4,23 @@ Import ldraw files directly into houdini!
 
 You can either source individual parts with the **Brickini Ldraw Part HDA** or import entire models with a one button shelf tool!
 
+![boutique hotel](/resources/help/brickini_ldraw_header.jpg)
+
 ## Features
 - import individual bricks & entire models
 - logo on studs!
 - color support (8 bit ldraw colors are converted to floating point)
+- mpd file support (mpd files contain multiple sub models, referenced by a main model)
 
 ## To-do
-- mpd file support
 - imperfect alignment
 - resolve $HOME etc variables
-- some .ldr like crocodile cage don't fully work?
 - gap (scale normalized)
 - slope texture
 - instancing support
 - karma material for bricks, transparent, rubber, chrome
 - add simple solaris example file for rendering
+- caching toggle
 
 ## Installation
 
