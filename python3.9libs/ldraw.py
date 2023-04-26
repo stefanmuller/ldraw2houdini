@@ -72,18 +72,35 @@ def find_subfiles(file):
 
     return subfiles
 
-def place_part(color, part, geo_node):
-    part = part.replace('.dat', '')
-    part = part.replace('.DAT', '')
-    part_sop_name = strip_special_characters(part)
-    part_sop_name = 'part_{0}_1'.format(part_sop_name)                
-    part_sop = geo_node.createNode('brickini_ldraw_part', part_sop_name)
+def place_part(color, part, part_list, geo_node):
 
-    part_sop.parm('part').set(part)
-    part_sop.parm('colorr').set(color[0])
-    part_sop.parm('colorg').set(color[1])
-    part_sop.parm('colorb').set(color[2])
-    return part_sop
+    # add part as key to part_list dict if it doesn't exist
+    if part not in part_list:
+        part_list[part] = None
+
+    part_name = part.replace('.dat', '').replace('.DAT', '')
+
+    if not part_list[part]:
+        part_sop_name = strip_special_characters(part_name)
+        part_sop_name = 'part_{0}_1'.format(part_sop_name)              
+        part_sop = geo_node.createNode('brickini_ldraw_part', part_sop_name)
+
+        part_sop.parm('part').set(part_name)
+        part_sop.parm('colorr').set(color[0])
+        part_sop.parm('colorg').set(color[1])
+        part_sop.parm('colorb').set(color[2])
+        part_sop.parm('pack').set(1)
+
+        part_list[part] = part_sop
+    else:
+        part_sop = part_list[part]
+
+    color_sop = part_sop.createOutputNode('color')
+    color_sop.parm('colorr').set(color[0])
+    color_sop.parm('colorg').set(color[1])
+    color_sop.parm('colorb').set(color[2])
+
+    return color_sop
 
 def transform_part(node, m4):
     # compensate for houdini coord sys
@@ -107,6 +124,7 @@ def transform_part(node, m4):
 def build_mpd_model(subfiles, subfile, geo_node):
     t_list = []
     t_list_master = []
+    part_list = dict()
 
     for line in subfiles[subfile]:
         if len(line) < 3:
@@ -121,7 +139,7 @@ def build_mpd_model(subfiles, subfile, geo_node):
             color = get_color(color_code)
 
             if '.dat' in part or '.DAT' in part:
-                output = place_part(color, part, geo_node)
+                output = place_part(color, part, part_list, geo_node)
 
             else:
                 t_list = build_mpd_model(subfiles, part, geo_node)
@@ -138,6 +156,8 @@ def build_mpd_model(subfiles, subfile, geo_node):
 
 def build_ldr_model(file, geo_node):
     t_list_master = []
+    part_list = dict()
+
     with open(file) as f:
         for line in f:
             line = line.split()
@@ -151,7 +171,7 @@ def build_ldr_model(file, geo_node):
 
                 color_code = line[1]
                 color = get_color(color_code)
-                output = place_part(color, part, geo_node)
+                output = place_part(color, part, part_list, geo_node)
 
                 m4 = get_matrix(line)
                 t = transform_part(output, m4)

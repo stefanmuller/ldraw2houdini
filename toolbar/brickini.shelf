@@ -10,7 +10,7 @@
   </toolshelf>
 
   <tool name="ldraw_model" label="Ldraw Model" icon="brickini_import.png">
-    <helpText><![CDATA[Import .ldr model files]]></helpText>
+    <helpText><![CDATA[Import ldraw model files]]></helpText>
     <script scriptType="python"><![CDATA[import ldraw
 import importlib
 
