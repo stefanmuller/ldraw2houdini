@@ -3,6 +3,7 @@ from pathlib import Path
 import hou
 import re
 import json
+import random
 
 def ldraw_lib():
     ldraw_lib = Path(hou.getenv('LDRAW_LIB'))
@@ -74,6 +75,9 @@ def find_subfiles(file):
 
 def place_part(color, part, part_list, geo_node):
 
+    # create random int for seed
+    seed = random.randint(0, 100000)
+
     # add part as key to part_list dict if it doesn't exist
     if part not in part_list:
         part_list[part] = None
@@ -90,6 +94,7 @@ def place_part(color, part, part_list, geo_node):
         part_sop.parm('colorg').set(color[1])
         part_sop.parm('colorb').set(color[2])
         part_sop.parm('pack').set(1)
+        part_sop.parm('seed').set(seed)
 
         part_list[part] = part_sop
     else:
@@ -104,7 +109,13 @@ def place_part(color, part, part_list, geo_node):
 
 def transform_part(node, m4):
     # compensate for houdini coord sys
-    m4_part = hou.hmath.buildRotate(-180, 0, 0)
+    # convert from LDU to metric (1 LDU = 0.4mm), however we multiply by 100,
+    # so 1 brick is 0.8m wide and a minifigure is therefore *very roughly* human scale (3.84 meters tall)
+    # m4_part = hou.hmath.buildRotate(-180, 0, 0)
+    transform_dict = dict()
+    transform_dict['rotate'] = (-180, 0, 0)
+    transform_dict['scale'] = (0.04, 0.04, 0.04)
+    m4_part = hou.hmath.buildTransform(transform_dict, transform_order="srt", rotate_order="xyz")
     m4 = m4*m4_part
     tr = m4.explode()
 

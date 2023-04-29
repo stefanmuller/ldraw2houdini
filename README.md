@@ -7,16 +7,17 @@ You can either source individual parts with the **Brickini Ldraw Part HDA** or i
 ![boutique hotel](/resources/help/brickini_ldraw_header.jpg)
 
 ## Features
-- import individual bricks & entire models
-- logo on studs!
-- color support (8 bit ldraw colors are converted to floating point)
-- mpd file support (mpd files contain multiple sub models, referenced by a main model)
-- instancing support (duplicate bricks are automatically packed and the color is read from the point data)
+- **import individual bricks & entire models**
+- **logo on studs!**
+- **color support**: 8 bit ldraw colors are converted to floating point)
+- **mpd file support**: mpd files contain multiple sub models, referenced by a main model)
+- **instancing support**: duplicate bricks are automatically packed and the color is read from the point data
+- **imperfect alignment**: if importing a model, the bricks are not perfectly aligned to each other, for a more realistic look
+- **gaps between bricks**: bricks can be slightly squashed to get tiny gaps between them
 
 ## To-do
-- imperfect alignment
+
 - resolve $HOME etc variables
-- gap (scale normalized)
 - slope texture
 - karma material for bricks, transparent, rubber, chrome
 - add simple solaris example file for rendering
