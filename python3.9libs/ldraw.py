@@ -20,6 +20,7 @@ ps_u = ldraw_lib() / 'unofficial' / 'parts' / 's'
 pr_u = ldraw_lib() / 'unofficial' / 'p'
 pr48_u = ldraw_lib() / 'unofficial' / 'p' / '48'
 pr8_u = ldraw_lib() / 'unofficial' / 'p' / '8'
+part_list = dict()
 
 def color_lib():
     this_file = Path(__file__).resolve()
@@ -73,7 +74,7 @@ def find_subfiles(file):
 
     return subfiles
 
-def place_part(color, part, part_list, geo_node):
+def place_part(color, part, geo_node):
 
     # create random int for seed
     seed = random.randint(0, 100000)
@@ -94,20 +95,25 @@ def place_part(color, part, part_list, geo_node):
         part_sop.parm('colorg').set(color[1])
         part_sop.parm('colorb').set(color[2])
         part_sop.parm('pack').set(1)
+        part_sop.parm('gap').set(1)
+        part_sop.parm('imperfect_alignment').set(1)
         part_sop.parm('seed').set(seed)
 
         part_list[part] = part_sop
     else:
         part_sop = part_list[part]
 
-    color_sop = part_sop.createOutputNode('color')
+    # Deliberately not using the more convenient .createOutputNode() method as for some reason it's much slower than connecting it manually afterwards
+    # disabling run_init_scripts also saves a couple seconds on huge models
+    color_sop = geo_node.createNode('color', 'color1', run_init_scripts=False)
+    color_sop.setInput(0, part_sop, 0)
     color_sop.parm('colorr').set(color[0])
     color_sop.parm('colorg').set(color[1])
     color_sop.parm('colorb').set(color[2])
 
     return color_sop
 
-def transform_part(node, m4):
+def transform_part(node, m4, geo_node):
     # compensate for houdini coord sys
     # convert from LDU to metric (1 LDU = 0.4mm), however we multiply by 100,
     # so 1 brick is 0.8m wide and a minifigure is therefore *very roughly* human scale (3.84 meters tall)
@@ -119,7 +125,8 @@ def transform_part(node, m4):
     m4 = m4*m4_part
     tr = m4.explode()
 
-    t = node.createOutputNode('xform')
+    t = geo_node.createNode('xform', 'transform1', run_init_scripts=False)
+    t.setInput(0, node, 0)
     t.parm('prexform_tx').set(tr.get('translate')[0])
     t.parm('prexform_ty').set(tr.get('translate')[1])
     t.parm('prexform_tz').set(tr.get('translate')[2])
@@ -135,7 +142,6 @@ def transform_part(node, m4):
 def build_mpd_model(subfiles, subfile, geo_node):
     t_list = []
     t_list_master = []
-    part_list = dict()
 
     for line in subfiles[subfile]:
         if len(line) < 3:
@@ -144,30 +150,29 @@ def build_mpd_model(subfiles, subfile, geo_node):
         if line[0] == '1':
             line = line.split()
             part = ' '.join(line[14:])
-            print(part)
+            # print(part)
 
             color_code = line[1]
             color = get_color(color_code)
 
             if '.dat' in part or '.DAT' in part:
-                output = place_part(color, part, part_list, geo_node)
+                output = place_part(color, part, geo_node)
 
             else:
                 t_list = build_mpd_model(subfiles, part, geo_node)
-                m = geo_node.createNode('merge')
+                m = geo_node.createNode('merge', 'merge1')
                 for t in t_list:
                     m.setNextInput(t)
                 output = m
 
             m4 = get_matrix(line)
-            t = transform_part(output, m4)
+            t = transform_part(output, m4, geo_node)
             t_list_master.append(t)
 
     return(t_list_master)
 
 def build_ldr_model(file, geo_node):
     t_list_master = []
-    part_list = dict()
 
     with open(file) as f:
         for line in f:
@@ -178,11 +183,11 @@ def build_ldr_model(file, geo_node):
 
             if line[0] == '1':
                 part = ' '.join(line[14:])
-                print(part)
+                # print(part)
 
                 color_code = line[1]
                 color = get_color(color_code)
-                output = place_part(color, part, part_list, geo_node)
+                output = place_part(color, part, geo_node)
 
                 m4 = get_matrix(line)
                 t = transform_part(output, m4)
@@ -258,11 +263,11 @@ def main():
     elif file_type == '.ldr':
         t_list_master = build_ldr_model(file, geo_node)
 
-    m = geo_node.createNode('merge')
+    m = geo_node.createNode('merge', 'merge1')
     for t in t_list_master:
         m.setNextInput(t)
 
-    o = m.createOutputNode('output')
+    o = m.createOutputNode('output', 'output1')
     o.setRenderFlag(True)
     o.setDisplayFlag(True)
     geo_node.layoutChildren()
