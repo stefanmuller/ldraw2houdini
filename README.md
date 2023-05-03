@@ -8,12 +8,15 @@ You can either source individual parts with the **Brickini Ldraw Part HDA** or i
 
 ## Features
 - **import individual bricks & entire models**
-- **logo on studs!**
-- **color support**: 8 bit ldraw colors are converted to floating point)
-- **mpd file support**: mpd files contain multiple sub models, referenced by a main model)
-- **instancing support**: duplicate bricks are automatically packed and the color is read from the point data
-- **imperfect alignment**: if importing a model, the bricks are not perfectly aligned to each other, for a more realistic look
-- **gaps between bricks**: bricks can be slightly squashed to get tiny gaps between them
+- **logo on studs:** studs are instanced for extra efficiency
+- **color support:** 8 bit ldraw colors are converted to floating point)
+- **mpd file support:** mpd files contain multiple sub models, referenced by a main model)
+- **instancing support:** duplicate bricks are automatically packed and the color is read from the point data
+- **imperfect alignment:** if importing a model, the bricks are not perfectly stacked/aligned to each other, for a more realistic look
+- **gaps between bricks:** bricks can be slightly squashed to get tiny gaps between them
+- **slope support** slopes are automatically detected and get a grainy texture
+- **crease and subdivison support:** geometry is automatigically cleaned as much as possible and ldraw lines are used to determine edges that need to be creased to allow proper subdivision
+
 
 ## To-do
 

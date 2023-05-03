@@ -9,6 +9,11 @@ def ldraw_lib():
     ldraw_lib = Path(hou.getenv('LDRAW_LIB'))
     return ldraw_lib
 
+def resources():
+    this_file = Path(__file__).resolve()
+    resources = this_file.parent.parent / 'resources'
+    return resources
+
 p = ldraw_lib() / 'parts'
 ps = ldraw_lib() / 'parts' / 's'
 pr = ldraw_lib() / 'p'
@@ -20,11 +25,12 @@ ps_u = ldraw_lib() / 'unofficial' / 'parts' / 's'
 pr_u = ldraw_lib() / 'unofficial' / 'p'
 pr48_u = ldraw_lib() / 'unofficial' / 'p' / '48'
 pr8_u = ldraw_lib() / 'unofficial' / 'p' / '8'
+pr_l2h = resources() / 'ldraw' / 'p'
+
 part_list = dict()
 
 def color_lib():
-    this_file = Path(__file__).resolve()
-    color_config = this_file.parent.parent / 'resources' / 'ld_colors.json'
+    color_config = resources() / 'ld_colors.json'
 
     with open(color_config, 'r') as f:
         color_dict = json.load(f)
@@ -190,7 +196,7 @@ def build_ldr_model(file, geo_node):
                 output = place_part(color, part, geo_node)
 
                 m4 = get_matrix(line)
-                t = transform_part(output, m4)
+                t = transform_part(output, m4, geo_node)
                 t_list_master.append(t)
 
     return(t_list_master)
