@@ -14,17 +14,14 @@ You can either source individual parts with the **Brickini Ldraw Part HDA** or i
 - **instancing support:** duplicate bricks are automatically packed and the color is read from the point data
 - **imperfect alignment:** if importing a model, the bricks are not perfectly stacked/aligned to each other, for a more realistic look
 - **gaps between bricks:** bricks can be slightly squashed to get tiny gaps between them
-- **slope support** slopes are automatically detected and get a grainy texture
-- **crease and subdivison support:** geometry is automatigically cleaned as much as possible and ldraw lines are used to determine edges that need to be creased to allow proper subdivision
-
+- **slope support** slopes are automatically detected so they can get a grainy texture
+- **bevel and subdivison support:** geometry is automatigically cleaned up as much as possible and ldraw lines are used to determine edges that need to be beveled to allow proper subdivision
+- **cache toggle:** either load geo dynamically from ldraw library or save in hip file
 
 ## To-do
-
-- resolve $HOME etc variables
-- slope texture
 - karma material for bricks, transparent, rubber, chrome
 - add simple solaris example file for rendering
-- caching toggle
+
 
 ## Installation
 

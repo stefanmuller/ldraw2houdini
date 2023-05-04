@@ -6,14 +6,17 @@ import json
 import random
 
 def ldraw_lib():
+    '''Returns the path to the ldraw library. This is set as an environment variable in the houdini.env file.'''
     ldraw_lib = Path(hou.getenv('LDRAW_LIB'))
     return ldraw_lib
 
 def resources():
+    '''Returns the path to the resources folder.'''
     this_file = Path(__file__).resolve()
     resources = this_file.parent.parent / 'resources'
     return resources
 
+# ldraw paths shortcuts
 p = ldraw_lib() / 'parts'
 ps = ldraw_lib() / 'parts' / 's'
 pr = ldraw_lib() / 'p'
@@ -30,6 +33,7 @@ pr_l2h = resources() / 'ldraw' / 'p'
 part_list = dict()
 
 def color_lib():
+    '''Returns a dict of ldraw colors.'''
     color_config = resources() / 'ld_colors.json'
 
     with open(color_config, 'r') as f:
@@ -37,6 +41,7 @@ def color_lib():
     return color_dict
 
 def get_color(color):
+    '''Returns a color vector from the ldraw color code.'''
     try:
         color_dict = color_lib()
         color = color_dict[color]
@@ -45,6 +50,7 @@ def get_color(color):
     return color
 
 def get_matrix(line):
+    '''Returns a houdini matrix from a line of an ldraw file.'''
     line = line[2:14]
     l = list(map(float, line))
     m4 = hou.Matrix4(((l[3], l[6], l[9], 0), (l[4], l[7], l[10], 0), (l[5], l[8], l[11], 0), (l[0], l[1], l[2], 1)))
@@ -53,8 +59,9 @@ def get_matrix(line):
 def strip_special_characters(input_string):
     return re.sub('[^0-9a-zA-Z_-]+', '', input_string)
 
-# create a dict for each subfile
+
 def find_subfiles(file):
+    '''Returns a dict of subfiles from an mpd file.'''
     subfiles = dict()
     name = ''
     
@@ -81,6 +88,7 @@ def find_subfiles(file):
     return subfiles
 
 def place_part(color, part, geo_node):
+    '''Places a part + color sop in the nodegraph.'''
 
     # create random int for seed
     seed = random.randint(0, 100000)
@@ -120,6 +128,7 @@ def place_part(color, part, geo_node):
     return color_sop
 
 def transform_part(node, m4, geo_node):
+    '''Transforms the part according to the ldraw matrix and adjusts for the houdini coord sys.'''
     # compensate for houdini coord sys
     # convert from LDU to metric (1 LDU = 0.4mm), however we multiply by 100,
     # so 1 brick is 0.8m wide and a minifigure is therefore *very roughly* human scale (3.84 meters tall)
@@ -146,6 +155,7 @@ def transform_part(node, m4, geo_node):
 
 
 def build_mpd_model(subfiles, subfile, geo_node):
+    '''Builds a model from an mpd file.'''
     t_list = []
     t_list_master = []
 
@@ -178,6 +188,7 @@ def build_mpd_model(subfiles, subfile, geo_node):
     return(t_list_master)
 
 def build_ldr_model(file, geo_node):
+    '''Builds a model from an ldr file.'''
     t_list_master = []
 
     with open(file) as f:
@@ -202,6 +213,7 @@ def build_ldr_model(file, geo_node):
     return(t_list_master)
 
 def create_part(subfiles, key):
+    '''Creates an unofficial part from an .mpd subfile.'''
     key_name = key.replace('s\\', '').replace('s/', '').replace('8\\', '').replace('8/', '').replace('48\\', '').replace('48/', '')
     file = Path()
 
@@ -233,7 +245,9 @@ def create_part(subfiles, key):
             f.write(line)
 
 def main():
+    '''Main function.'''
     file = hou.ui.selectFile(start_directory=None, title=None, collapse_sequences=False, file_type=hou.fileType.Any, pattern=None, default_value=None, multiple_select=False, image_chooser=None, chooser_mode=hou.fileChooserMode.Read, width=0, height=0)
+    file = hou.expandString(file)
     file = Path(file)
     model_master_name = file.stem
     model_master_name = strip_special_characters(model_master_name)
