@@ -18,17 +18,16 @@ You can either source individual parts with the **Brickini LDraw Part HDA** or i
 - **cache toggle:** either load geo dynamically from LDraw library or save in hip file
 - **auto generate textures for prints/stickers** for modern cg workflows
 - **auto uvs**
+- **solaris + karma example scene** contains MaterialX shader showcasing how to create high quality renderings 
 
 ## To-do
 - karma material for bricks, transparent, rubber, chrome
-- add simple solaris example file for rendering
 - dropdown for color picker
 - global model part links
 
 ## Requirements
 - houdini 19.5
 - sidefx labs for auto uv feature
-
 
 ## Installation
 
