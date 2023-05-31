@@ -23,11 +23,11 @@ pr = ldraw_lib() / 'p'
 pr48 = ldraw_lib() / 'p' / '48'
 pr8 = ldraw_lib() / 'p' / '8'
 
-p_u = ldraw_lib() / 'unofficial' / 'parts'
-ps_u = ldraw_lib() / 'unofficial' / 'parts' / 's'
-pr_u = ldraw_lib() / 'unofficial' / 'p'
-pr48_u = ldraw_lib() / 'unofficial' / 'p' / '48'
-pr8_u = ldraw_lib() / 'unofficial' / 'p' / '8'
+p_u = ldraw_lib() / 'UnOfficial' / 'parts'
+ps_u = ldraw_lib() / 'UnOfficial' / 'parts' / 's'
+pr_u = ldraw_lib() / 'UnOfficial' / 'p'
+pr48_u = ldraw_lib() / 'UnOfficial' / 'p' / '48'
+pr8_u = ldraw_lib() / 'UnOfficial' / 'p' / '8'
 pr_l2h = resources() / 'ldraw' / 'p'
 
 part_list = dict()

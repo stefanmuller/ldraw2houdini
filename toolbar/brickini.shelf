@@ -9,7 +9,7 @@
     <memberTool name="ldraw_model"/>
   </toolshelf>
 
-  <tool name="ldraw_model" label="Ldraw Model" icon="brickini_import.png">
+  <tool name="ldraw_model" label="LDraw Model" icon="brickini_import.png">
     <helpText><![CDATA[Import ldraw model files]]></helpText>
     <script scriptType="python"><![CDATA[import ldraw
 import importlib
