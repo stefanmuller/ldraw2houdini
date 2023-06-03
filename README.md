@@ -11,7 +11,7 @@ You can either source individual parts with the **Brickini LDraw Part HDA** or i
 - **logo on studs:** studs are instanced for extra efficiency
 - **mpd file support:** mpd files contain multiple sub models, referenced by a main model
 - **instancing support:** duplicate bricks are automatically packed and the color is read from the point data
-- **imperfect alignment:** if importing a model, the bricks are not perfectly stacked/aligned to each other, for a more realistic look
+- **imperfections:** if importing a model, the bricks are not perfectly stacked/aligned to each other, for a more realistic look and bricks can randomly yellow due to age.
 - **gaps between bricks:** bricks can be slightly squashed to get tiny gaps between them
 - **slope support** slopes are automatically detected so they can get a grainy texture
 - **bevel and subdivison support:** geometry is automagically cleaned up as much as possible and LDraw lines are used to determine edges that need to be beveled to allow proper subdivision
@@ -23,7 +23,6 @@ You can either source individual parts with the **Brickini LDraw Part HDA** or i
 ## To-do
 - karma material for bricks, transparent, rubber, chrome
 - dropdown for color picker
-- global model part links
 
 ## Requirements
 - houdini 19.5

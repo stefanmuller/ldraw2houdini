@@ -110,8 +110,6 @@ def place_part(color, part, geo_node):
         part_sop.parm('colorb').set(color[2])
         part_sop.parm('pack').set(1)
         part_sop.parm('gap').set(1)
-        part_sop.parm('imperfect_alignment').set(1)
-        part_sop.parm('seed').set(seed)
 
         part_list[part] = part_sop
     else:
@@ -287,7 +285,8 @@ def main():
     for t in t_list_master:
         m.setNextInput(t)
 
-    o = m.createOutputNode('output', 'output1')
+    i = m.createOutputNode('brickini_imperfections', 'brickini_imperfections1')
+    o = i.createOutputNode('output', 'output1')
     o.setRenderFlag(True)
     o.setDisplayFlag(True)
     geo_node.layoutChildren()

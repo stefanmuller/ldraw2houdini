@@ -6,11 +6,12 @@
  a single file. -->
 
   <toolshelf name="brickini" label="Brickini">
+    <memberTool name="ldraw_part"/>
     <memberTool name="ldraw_model"/>
   </toolshelf>
 
   <tool name="ldraw_model" label="LDraw Model" icon="brickini_import.png">
-    <helpText><![CDATA[Import ldraw model files]]></helpText>
+    <helpText><![CDATA[Import LDraw model]]></helpText>
     <script scriptType="python"><![CDATA[import ldraw
 import importlib
 
@@ -18,5 +19,17 @@ importlib.reload(ldraw)
 ldraw.main()
    
    ]]></script>
+  </tool>
+
+  <tool name="ldraw_part" label="LDraw Part" icon="/home/stefan/git/ldraw2houdini/config/Icons/brickini_import_part.png">
+    <helpText><![CDATA[Import LDraw part]]></helpText>
+    <script scriptType="python"><![CDATA[import hou
+
+confirmed, input_value = hou.ui.readInput("Enter LDraw part number", buttons=('OK', 'Cancel'))
+
+if confirmed == 0:
+    geometry_node = hou.node('/obj').createNode('geo', "brickini_ldraw_" + input_value + '_1')
+    brickini_node = geometry_node.createNode('brickini_ldraw_part')
+    brickini_node.parm('part').set(input_value) ]]></script>
   </tool>
 </shelfDocument>
