@@ -40,15 +40,6 @@ def color_lib():
         color_dict = json.load(f)
     return color_dict
 
-def get_color(color):
-    '''Returns a color vector from the ldraw color code.'''
-    try:
-        color_dict = color_lib()
-        color = color_dict[color]
-    except:
-        color = hou.Vector3(1, 0, 0.5)
-    return color
-
 def get_matrix(line):
     '''Returns a houdini matrix from a line of an ldraw file.'''
     line = line[2:14]
@@ -87,11 +78,14 @@ def find_subfiles(file):
 
     return subfiles
 
-def place_part(color, part, geo_node):
-    '''Places a part + color sop in the nodegraph.'''
+def find_value_index(list_of_lists, search_value):
+    for index, sublist in enumerate(list_of_lists):
+        if search_value in sublist.menuItems():
+            return index
+    return -1
 
-    # create random int for seed
-    seed = random.randint(0, 100000)
+def place_part(color_code, part, geo_node):
+    '''Places a part + color sop in the nodegraph.'''
 
     # add part as key to part_list dict if it doesn't exist
     if part not in part_list:
@@ -105,9 +99,6 @@ def place_part(color, part, geo_node):
         part_sop = geo_node.createNode('brickini_ldraw_part', part_sop_name)
 
         part_sop.parm('part').set(part_name)
-        part_sop.parm('colorr').set(color[0])
-        part_sop.parm('colorg').set(color[1])
-        part_sop.parm('colorb').set(color[2])
         part_sop.parm('pack').set(1)
         part_sop.parm('gap').set(1)
 
@@ -116,14 +107,22 @@ def place_part(color, part, geo_node):
         part_sop = part_list[part]
 
     # Deliberately not using the more convenient .createOutputNode() method as for some reason it's much slower than connecting it manually afterwards
-    # disabling run_init_scripts also saves a couple seconds on huge models
-    color_sop = geo_node.createNode('color', 'color1', run_init_scripts=False)
-    color_sop.setInput(0, part_sop, 0)
-    color_sop.parm('colorr').set(color[0])
-    color_sop.parm('colorg').set(color[1])
-    color_sop.parm('colorb').set(color[2])
+    material_sop = geo_node.createNode('brickini_material', 'brickini_material1', run_init_scripts=True)
+    material_sop.setInput(0, part_sop, 0)
 
-    return color_sop
+    mat_parms = []
+    all_parms = material_sop.parms()
+
+    for a in all_parms:
+        if 'material_' in a.name() and 'group' not in a.name():
+            mat_parms.append(a)
+
+    result_index = find_value_index(mat_parms, color_code)
+    
+    material_sop.parm('material_group').set(result_index)
+    mat_parms[result_index].set(color_code)
+
+    return material_sop
 
 def transform_part(node, m4, geo_node):
     '''Transforms the part according to the ldraw matrix and adjusts for the houdini coord sys.'''
@@ -167,11 +166,9 @@ def build_mpd_model(subfiles, subfile, geo_node):
             # print(part)
 
             color_code = line[1]
-            color = get_color(color_code)
 
             if '.dat' in part or '.DAT' in part:
-                output = place_part(color, part, geo_node)
-
+                output = place_part(color_code, part, geo_node)
             else:
                 t_list = build_mpd_model(subfiles, part, geo_node)
                 m = geo_node.createNode('merge', 'merge1')
@@ -198,11 +195,9 @@ def build_ldr_model(file, geo_node):
 
             if line[0] == '1':
                 part = ' '.join(line[14:])
-                # print(part)
 
                 color_code = line[1]
-                color = get_color(color_code)
-                output = place_part(color, part, geo_node)
+                output = place_part(color_code, part, geo_node)
 
                 m4 = get_matrix(line)
                 t = transform_part(output, m4, geo_node)

@@ -20,10 +20,6 @@ You can either source individual parts with the **Brickini LDraw Part HDA** or i
 - **auto uvs**
 - **solaris + karma example scene** contains MaterialX shader showcasing how to create high quality renderings 
 
-## To-do
-- karma material for bricks, transparent, rubber, chrome
-- dropdown for color picker
-
 ## Requirements
 - houdini 19.5
 - sidefx labs for auto uv feature
