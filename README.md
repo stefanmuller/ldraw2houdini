@@ -30,11 +30,12 @@ You can source individual parts with the **Brickini LDraw Part HDA** or import e
 
 1. Download the latest release
 2. Unpack to a directory called ldraw2houdini
-3. Download [LDraw parts library](https://library.ldraw.org/updates?latest) or [Bricklink Studio](https://www.bricklink.com/v2/build/studio.page)
-5. add the following lines to your houdini.env
+3. Download [LDraw parts library](https://library.ldraw.org/updates?latest)
+4. Unpack to a directory called ldraw
+5. Add the following lines to your houdini.env
 
         # path to ldraw library
-        LDRAW_LIB = "C:\Program Files\Studio 2.0\ldraw"
+        LDRAW_LIB = "C:\Users\<username>\Documents\ldraw"
 
         # if you don't have other plugins installed:
         HOUDINI_PATH = "C:\Users\<username>\Documents\ldraw2houdini;&"
@@ -48,9 +49,9 @@ You can source individual parts with the **Brickini LDraw Part HDA** or import e
 
 ### Import a single part
 
-1. create a **Brickini LDraw Part** node in SOP context
-2. type a cool part number into the **Part** parameter: 2546p01
-3. Change **Color** parameter to red
+1. Create a **Brickini LDraw Part** node in SOP context
+2. Type a cool part number into the **Part** parameter: 2546p01
+3. Change **Material** parameter to red
 4. Look at that awesome classic parrot
 
 ![a parrot in the houdini viewport](/resources/help/brickini_ldraw_part.jpg)

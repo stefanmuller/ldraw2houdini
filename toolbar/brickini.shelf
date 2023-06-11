@@ -21,7 +21,7 @@ ldraw.main()
    ]]></script>
   </tool>
 
-  <tool name="ldraw_part" label="LDraw Part" icon="/home/stefan/git/ldraw2houdini/config/Icons/brickini_import_part.png">
+  <tool name="ldraw_part" label="LDraw Part" icon="brickini_import_part.png">
     <helpText><![CDATA[Import LDraw part]]></helpText>
     <script scriptType="python"><![CDATA[import hou
 
