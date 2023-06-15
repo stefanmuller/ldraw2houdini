@@ -11,7 +11,7 @@ You can source individual parts with the **Brickini LDraw Part HDA** or import e
 ## Features
 - **Import individual bricks & entire models**
 - **Logo on studs:** studs are instanced for extra efficiency
-- **MPD file support:** mpd files contain multiple sub models, referenced by a main model
+- **LDR, L3B & MPD file support:** mpd files contain multiple sub models, referenced by a main model
 - **Instancing support:** duplicate bricks are automatically packed and the color is read from the point data
 - **Imperfections:** if importing a model, the bricks are not perfectly stacked/aligned to each other, for a more realistic look and bricks can randomly yellow due to age.
 - **Gaps between bricks:** bricks can be slightly squashed to get tiny gaps between them
@@ -28,22 +28,34 @@ You can source individual parts with the **Brickini LDraw Part HDA** or import e
 
 ## Installation
 
-1. Download the latest release
-2. Unpack to a directory called ldraw2houdini
+1. Download the latest release 
+2. Unpack to a directory called **ldraw2houdini**
 3. Download [LDraw parts library](https://library.ldraw.org/updates?latest)
-4. Unpack to a directory called ldraw
-5. Add the following lines to your houdini.env
+4. Unpack to a directory called **ldraw**
+5. Register the **ldraw2houdini.json** package in Houdini by dropping it for example here:
 
-        # path to ldraw library
-        LDRAW_LIB = "C:\Users\<username>\Documents\ldraw"
+        # Windows
+        C:\Users\<username>\Documents\houdini19.5\packages
+        # Linux
+        ~/houdini19.5/packages
 
-        # if you don't have other plugins installed:
-        HOUDINI_PATH = "C:\Users\<username>\Documents\ldraw2houdini;&"
+6. Adjust the ldraw2houdini.json if needed.
+    - Under Windows $HOME points to C:\Users\<username>\Documents
+    - Under Linux $HOME is ~/
 
-        # if you have other plugins installed:
-        HOUDINI_PATH = "C:\Users\<username>\Documents\ldraw2houdini;$HOUDINI_PATH"
 
-6. Happy ldrawing!
+            {
+            "env": [
+            { "LDRAW_LIB": "$HOME/ldraw" }
+            ],
+            "path": [
+            "$HOME/git/ldraw2houdini"
+            ]
+            }
+
+7. **Optional** - If you install a new release and want to upgrade your hdas in an existing scene run the **Upgrade Brickini HDAs Shelf Tool**
+
+8. Happy ldrawing!
 
 ## Quickstart Guide
 

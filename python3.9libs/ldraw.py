@@ -3,7 +3,6 @@ from pathlib import Path
 import hou
 import re
 import json
-import random
 
 def ldraw_lib():
     '''Returns the path to the ldraw library. This is set as an environment variable in the houdini.env file.'''
@@ -252,13 +251,13 @@ def main():
     for d in dirs:
         d.mkdir(parents=True, exist_ok=True)
 
-    # create sop network
-    geo_node = hou.node('/obj').createNode('geo', model_master_name)
-
     # depending on suffix either process as mpd (multi part document) or ldr
     file_type = file.suffix
 
     if file_type == '.mpd':
+        # create sop network
+        geo_node = hou.node('/obj').createNode('geo', model_master_name)
+
         subfiles = find_subfiles(file)
 
         #find dat subfile and create unofficial parts in ldraw lib
@@ -270,11 +269,20 @@ def main():
         for key in subfiles:
             if 'main' in key:
                 main_subfile = key
-            
+
+        # build model
         t_list_master = build_mpd_model(subfiles, main_subfile, geo_node)
 
-    elif file_type == '.ldr':
+    elif file_type == '.ldr' or file_type == '.l3b':
+        # create sop network
+        geo_node = hou.node('/obj').createNode('geo', model_master_name)
+
+        # build model
         t_list_master = build_ldr_model(file, geo_node)
+
+    else:
+        hou.ui.displayMessage('Please choose one of the following file types: ldr, l3b or mpd', buttons=('OK',), severity=hou.severityType.Error, default_choice=0, close_choice=-1, title='Wrong File Type', )
+        return
 
     m = geo_node.createNode('merge', 'merge1')
     for t in t_list_master:

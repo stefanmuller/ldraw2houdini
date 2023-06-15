@@ -8,6 +8,7 @@
   <toolshelf name="brickini" label="Brickini">
     <memberTool name="ldraw_part"/>
     <memberTool name="ldraw_model"/>
+    <memberTool name="upgrade_brickini_hdas"/>
   </toolshelf>
 
   <tool name="ldraw_model" label="LDraw Model" icon="brickini_import.png">
@@ -31,5 +32,13 @@ if confirmed == 0:
     geometry_node = hou.node('/obj').createNode('geo', "brickini_ldraw_" + input_value + '_1')
     brickini_node = geometry_node.createNode('brickini_ldraw_part')
     brickini_node.parm('part').set(input_value) ]]></script>
+  </tool>
+
+  <tool name="upgrade_brickini_hdas" label="Upgrade Brickini HDAs" icon="brickini_upgrade.png">
+    <script scriptType="python"><![CDATA[import upgrade_brickini_hdas
+import importlib
+
+importlib.reload(upgrade_brickini_hdas)
+upgrade_brickini_hdas.main()]]></script>
   </tool>
 </shelfDocument>
