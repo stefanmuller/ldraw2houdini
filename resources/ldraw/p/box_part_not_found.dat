@@ -1,0 +1,14 @@
+0 Big Box If Part Is Not Found
+0 Name: box_part_not_found.dat
+0 Author: Stefan Muller
+0 !LDRAW_ORG Unofficial_Primitive
+0 !LICENSE Licensed under CC BY 10.0 and CC BY 4.0 : see CAreadme.txt
+
+0 BFC CERTIFY CCW
+
+4 16 10 10 10 10 10 -10 -10 10 -10 -10 10 10
+4 16 -10 -10 -10 10 -10 -10 10 -10 10 -10 -10 10
+4 16 -10 -10 10 10 -10 10 10 10 10 -10 10 10
+4 16 -10 -10 -10 -10 -10 10 -10 10 10 -10 10 -10
+4 16 10 -10 -10 -10 -10 -10 -10 10 -10 10 10 -10
+4 16 10 -10 10 10 -10 -10 10 10 -10 10 10 10

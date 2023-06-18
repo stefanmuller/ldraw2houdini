@@ -144,9 +144,13 @@ def transform_part(node, m4, geo_node):
     t.parm('prexform_rx').set(tr.get('rotate')[0])
     t.parm('prexform_ry').set(tr.get('rotate')[1])
     t.parm('prexform_rz').set(tr.get('rotate')[2])
+    t.parm('prexform_sx').set(tr.get('scale')[0])
+    t.parm('prexform_sy').set(tr.get('scale')[1])
+    t.parm('prexform_sz').set(tr.get('scale')[2])
     
     # compensate for houdini coord sys
     t.parm('rx').set(180)
+    t.parm('scale').set(25)
     return t
 
 
@@ -162,7 +166,6 @@ def build_mpd_model(subfiles, subfile, geo_node):
         if line[0] == '1':
             line = line.split()
             part = ' '.join(line[14:])
-            # print(part)
 
             color_code = line[1]
 
@@ -218,14 +221,20 @@ def create_part(subfiles, key):
             
             if part_type == 'Unofficial_Part':
                 file = p_u / key_name
-            if part_type == 'Unofficial_Subpart':
+            elif part_type == 'Unofficial_Subpart':
                 file = ps_u / key_name
-            if part_type == 'Unofficial_Primitive':
+            elif part_type == 'Unofficial_Primitive':
                 file = pr_u / key_name
-            if part_type == 'Unofficial_48_Primitive':
+            elif part_type == 'Unofficial_48_Primitive':
                 file = pr48_u / key_name
-            if part_type == 'Unofficial_8_Primitive':
+            elif part_type == 'Unofficial_8_Primitive':
                 file = pr8_u / key_name
+            else:
+                file = p_u / key_name
+            break
+        else:
+            # if meta not present we just have to assume it's a part
+            file = p_u / key_name
 
             # if file already exists, delete it
             if file.exists():
@@ -267,8 +276,11 @@ def main():
 
         #find subfile that contains the main model
         for key in subfiles:
-            if 'main' in key:
+            if 'main' in key.lower():
                 main_subfile = key
+            else:
+                # if main is not present, we just assume the first FILE is the main model.
+                main_subfile = next(iter(subfiles))
 
         # build model
         t_list_master = build_mpd_model(subfiles, main_subfile, geo_node)
