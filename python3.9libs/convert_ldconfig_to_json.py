@@ -2,7 +2,6 @@ from pathlib import Path, PureWindowsPath
 import re
 import json
 
-
 resources = Path(__file__).resolve().parent.parent / 'resources' / 'ld_colors.json'
 ldconfig = '/home/stefan/ldraw/LDConfig.ldr'
 
@@ -12,13 +11,13 @@ def hex_to_rgb(hex_value):
     decimal_g = int(hex_value[2:4], 16)
     decimal_b = int(hex_value[4:6], 16)
 
-    # Convert decimal RGB to linear sRGB
-    linear_r = (decimal_r / 255) ** 2.2
-    linear_g = (decimal_g / 255) ** 2.2
-    linear_b = (decimal_b / 255) ** 2.2
+    # Convert decimal RGB to float
+    r = (decimal_r / 255) ** 2.2
+    g = (decimal_g / 255) ** 2.2
+    b = (decimal_b / 255) ** 2.2
 
     # Return as list
-    return [linear_r, linear_g, linear_b]
+    return [r, g, b]
 
 color_dict = {}
 
@@ -47,7 +46,6 @@ with open(ldconfig, 'r') as f:
                 'name': name,
                 'rgb': rgb
             }
-
 
 with open(resources, 'w') as f:
     json.dump(color_dict, f, indent=4)

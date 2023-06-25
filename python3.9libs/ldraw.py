@@ -126,12 +126,12 @@ def place_part(color_code, part, geo_node):
 def transform_part(node, m4, geo_node):
     '''Transforms the part according to the ldraw matrix and adjusts for the houdini coord sys.'''
     # compensate for houdini coord sys
-    # convert from LDU to metric (1 LDU = 0.4mm), however we multiply by 100,
-    # so 1 brick is 0.8m wide and a minifigure is therefore *very roughly* human scale (3.84 meters tall)
-    # m4_part = hou.hmath.buildRotate(-180, 0, 0)
+    # convert from LDU to metric (1 LDU = 0.4mm), however we multiply by 10,
+    # so a 1x1 brick is 8 cm wide and a minifigure is therefore (38.4 cm tall)
+    # hopefully this is the right balance to get stable sims and stay in the safe floating point zone
     transform_dict = dict()
     transform_dict['rotate'] = (-180, 0, 0)
-    transform_dict['scale'] = (0.04, 0.04, 0.04)
+    transform_dict['scale'] = (0.004, 0.004, 0.004)
     m4_part = hou.hmath.buildTransform(transform_dict, transform_order="srt", rotate_order="xyz")
     m4 = m4*m4_part
     tr = m4.explode()
@@ -150,7 +150,7 @@ def transform_part(node, m4, geo_node):
     
     # compensate for houdini coord sys
     t.parm('rx').set(180)
-    t.parm('scale').set(25)
+    t.parm('scale').set(250)
     return t
 
 
