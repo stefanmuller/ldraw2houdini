@@ -10,7 +10,7 @@ You can source individual parts with the **Brickini LDraw Part HDA** or import e
 
 ## Features
 - **Import individual bricks & entire models**
-- **Logo on studs:**
+- **Logo on studs**
 - **LDR, L3B & MPD file support:** mpd files contain multiple sub models, referenced by a main model
 - **Instancing support:** duplicate bricks are automatically packed and the color is read from the point data
 - **Imperfections:** if importing a model, the bricks are not perfectly stacked/aligned to each other, for a more realistic look and bricks can randomly yellow due to age.
@@ -21,10 +21,12 @@ You can source individual parts with the **Brickini LDraw Part HDA** or import e
 - **Auto generate textures for prints/stickers** for modern cg workflows
 - **Auto uvs**
 - **Solaris + Karma example scene** contains MaterialX shader showcasing how to create high quality renderings 
+- **ACES colorspace:** LDraw colors are converted to acescg
 
 ## Requirements
-- Houdini 19.5
+- Houdini 20
 - SideFX Labs for auto uv feature
+- OCIO ACES colorspace configuration for Houdini
 
 ## Installation
 
