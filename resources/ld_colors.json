@@ -128,10 +128,12 @@
     "14": {
         "category": "Solid",
         "name": "Yellow",
+        "status": "current",
+        "note": "converted to acescg from Rylie Howerter Hex",
         "rgb": [
-            0.7535124320057713,
-            0.6222334509112067,
-            0.11840465248777696
+            0.7589228117791416,
+            0.5333728343911317,
+            0.07544170473612431
         ]
     },
     "15": {
@@ -326,10 +328,12 @@
     "77": {
         "category": "Solid",
         "name": "Light_Pink",
+        "status": "retired",
+        "note": "Paradisa Pink - converted to acescg from Rylie Howerter Hex",
         "rgb": [
-            0.8422853063984986,
-            0.631237396255354,
-            0.6292802339078842
+            0.6377321482124934,
+            0.4770405696294325,
+            0.45274185969019165
         ]
     },
     "78": {

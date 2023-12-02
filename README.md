@@ -2,7 +2,7 @@
 
 ### Import LDraw files directly into Houdini!
 
-You can source individual parts with the **Brickini LDraw Part HDA** or import entire models with a one-button shelf tool!
+Source individual parts with the **Brickini LDraw Part HDA** or import entire models with a one-button shelf tool!
 
 [![render of example scene](/resources/help/brickini_example_scene.jpg)](https://youtu.be/JDEZ5LpPKfM)
 
@@ -20,7 +20,8 @@ You can source individual parts with the **Brickini LDraw Part HDA** or import e
 - **Cache toggle:** either load geo dynamically from LDraw library or save in hip file
 - **Auto generate textures for prints/stickers** for modern cg workflows
 - **Auto uvs**
-- **Solaris + Karma example scene** contains MaterialX shader showcasing how to create high quality renderings 
+- **Material properties:** simple config file to define softness, graininess and roughness for individual parts
+- **Solaris + Karma example scene** contains MaterialX shader showcasing how to create high quality renderings
 - **ACES colorspace:** LDraw colors are converted to acescg
 
 ## Requirements

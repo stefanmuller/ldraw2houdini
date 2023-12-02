@@ -9,10 +9,11 @@
     <memberTool name="ldraw_part"/>
     <memberTool name="ldraw_model"/>
     <memberTool name="upgrade_brickini_hdas"/>
+    <memberTool name="reload_brickini_nodes"/>
   </toolshelf>
 
   <tool name="ldraw_model" label="LDraw Model" icon="brickini_import.png">
-    <helpText><![CDATA[Import LDraw model]]></helpText>
+    <helpText><![CDATA["""Import LDraw model"""]]></helpText>
     <script scriptType="python"><![CDATA[import ldraw
 import importlib
 
@@ -23,7 +24,7 @@ ldraw.main()
   </tool>
 
   <tool name="ldraw_part" label="LDraw Part" icon="brickini_import_part.png">
-    <helpText><![CDATA[Import LDraw part]]></helpText>
+    <helpText><![CDATA["""Import LDraw part"""]]></helpText>
     <script scriptType="python"><![CDATA[import hou
 
 confirmed, input_value = hou.ui.readInput("Enter LDraw part number", buttons=('OK', 'Cancel'))
@@ -35,10 +36,21 @@ if confirmed == 0:
   </tool>
 
   <tool name="upgrade_brickini_hdas" label="Upgrade Brickini HDAs" icon="brickini_upgrade.png">
-    <script scriptType="python"><![CDATA[import upgrade_brickini_hdas
+    <helpText><![CDATA["""Upgrade all Brickini HDAs to its latest version"""]]></helpText>
+    <script scriptType="python"><![CDATA[import brickini_utils
 import importlib
 
-importlib.reload(upgrade_brickini_hdas)
-upgrade_brickini_hdas.main()]]></script>
+importlib.reload(brickini_utils)
+brickini_utils.upgrade_brickini_hdas()]]></script>
+  </tool>
+
+  <tool name="reload_brickini_nodes" label="Reload Brickini Nodes" icon="brickini_reload.png">
+    <helpText><![CDATA["""Select one or more Brickini nodes or Geometry nodes to trigger a reload.
+This can be helpful if you modified an ldraw file or the brick_properties.json or ld_colors.json and want to see its effect."""]]></helpText>
+    <script scriptType="python"><![CDATA[import brickini_utils
+import importlib
+
+importlib.reload(brickini_utils)
+brickini_utils.reload_brickini_nodes()]]></script>
   </tool>
 </shelfDocument>
