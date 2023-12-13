@@ -39,6 +39,8 @@ def color_lib():
         color_dict = json.load(f)
     return color_dict
 
+color_dict = color_lib()
+
 def get_matrix(line):
     '''Returns a houdini matrix from a line of an ldraw file.'''
     line = line[2:14]
@@ -139,8 +141,7 @@ def place_part(color_code, part, geo_node):
 
     return material_sop
 
-def transform_part(node, m4, geo_node):
-    '''Transforms the part according to the ldraw matrix and adjusts for the houdini coord sys.'''
+def xform_to_houdini():
     # compensate for houdini coord sys
     # convert from LDU to metric (1 LDU = 0.4mm), however we multiply by 10,
     # so a 1x1 brick is 8 cm wide and a minifigure is therefore (38.4 cm tall)
@@ -148,8 +149,12 @@ def transform_part(node, m4, geo_node):
     transform_dict = dict()
     transform_dict['rotate'] = (-180, 0, 0)
     transform_dict['scale'] = (0.004, 0.004, 0.004)
-    m4_part = hou.hmath.buildTransform(transform_dict, transform_order="srt", rotate_order="xyz")
-    m4 = m4*m4_part
+    return hou.hmath.buildTransform(transform_dict, transform_order="srt", rotate_order="xyz")
+
+def transform_part(node, m4, geo_node):
+    '''Transforms the part according to the ldraw matrix and adjusts for the houdini coord sys.'''
+    hxform = xform_to_houdini()
+    m4 = hxform.inverted() * m4 * hxform
     tr = m4.explode()
 
     t = geo_node.createNode('xform', 'transform1', run_init_scripts=False)
@@ -163,12 +168,36 @@ def transform_part(node, m4, geo_node):
     t.parm('prexform_sx').set(tr.get('scale')[0])
     t.parm('prexform_sy').set(tr.get('scale')[1])
     t.parm('prexform_sz').set(tr.get('scale')[2])
-    
-    # compensate for houdini coord sys
-    t.parm('rx').set(180)
-    t.parm('scale').set(250)
+
     return t
 
+def transform_part_point(pt, m4):
+    '''Transforms the part according to the ldraw matrix and adjusts for the houdini coord sys.'''
+    m4_part = xform_to_houdini()
+    m4 = m4_part.inverted() * m4 * m4_part
+
+    pt.setAttribValue("xform", m4.asTuple())
+
+def create_part_point(geo, color_code, part, m4):
+    '''Creates a point representing a part.'''
+
+    part_name = part.lower()
+    isdat = '.dat' in part_name
+    if isdat:
+        part_name = part_name.replace('.dat', '').replace('.DAT', '')
+        part_name = part_name.replace(' ', '')
+        # part_name = part
+
+    part_point = geo.createPoint()
+
+    point_type = "part" if isdat else "subcomponent"
+    part_point.setAttribValue("type", point_type)
+    part_point.setAttribValue('part', part_name)
+    part_point.setAttribValue('Cd', color_dict[color_code]["rgb"])
+
+    transform_part_point(part_point, m4)
+
+    return part_point
 
 def build_mpd_model(subfiles, subfile, geo_node):
     '''Builds a model from an mpd file.'''
@@ -223,6 +252,39 @@ def build_ldr_model(file, geo_node):
 
     return(t_list_master)
 
+def build_model_points(geo, file):
+    geo.addAttrib(hou.attribType.Point, "type", "")
+    geo.addAttrib(hou.attribType.Point, "part", "")
+    geo.addAttrib(hou.attribType.Point, "Cd", hou.Vector3(1.0, 1.0, 1.0))
+    geo.addAttrib(hou.attribType.Point, "xform", hou.Matrix4(1.0).asTuple())
+    geo.addAttrib(hou.attribType.Point, "modelname", "")
+
+    with open(file) as f:
+        model_name = ""
+        for line in f:
+            lineparts = line.split()
+
+            if len(line) < 3:
+                continue
+
+            pattern = r"0 FILE (.+)$"
+
+            # Use re.search to find the match
+
+            match = re.search(pattern, line)
+            # Check if a match is found
+            if match:
+                model_name = match.group(1).lower().strip()
+
+            if line[0] == '1':
+                part = ' '.join(lineparts[14:])
+
+                color_code = lineparts[1]
+                m4 = get_matrix(lineparts)
+                point = create_part_point(geo, color_code, part, m4)
+                model_name = model_name.replace('.dat', '').replace('.DAT', '')
+                point.setAttribValue("modelname", model_name)
+
 def create_part(subfiles, key):
     '''Creates an unofficial part from an .mpd subfile.'''
     key_name = key.replace('s\\', '').replace('s/', '').replace('8\\', '').replace('8/', '').replace('48\\', '').replace('48/', '')
@@ -261,6 +323,17 @@ def create_part(subfiles, key):
         with open(file, 'a') as f:
             f.write(line)
 
+def build_subfiles(subfiles):
+    # create unofficial directories if they don't exist
+    dirs=[ps_u, pr48_u, pr8_u]
+    for d in dirs:
+        d.mkdir(parents=True, exist_ok=True)
+
+    #find dat subfile and create unofficial parts in ldraw lib
+    for key in subfiles:
+        if '.dat' in key or '.DAT' in key:
+            create_part(subfiles, key)
+
 def main():
     '''Main function.'''
     file = hou.ui.selectFile(start_directory=None, title=None, collapse_sequences=False, file_type=hou.fileType.Any, pattern=None, default_value=None, multiple_select=False, image_chooser=None, chooser_mode=hou.fileChooserMode.Read, width=0, height=0)
@@ -271,11 +344,6 @@ def main():
     model_master_name = 'ldraw_model_{}'.format(model_master_name)
     print('building {} ...'.format(model_master_name))
 
-    # create unofficial directories if they don't exist
-    dirs=[ps_u, pr48_u, pr8_u]
-    for d in dirs:
-        d.mkdir(parents=True, exist_ok=True)
-
     # depending on suffix either process as mpd (multi part document) or ldr
     file_type = file.suffix
 
@@ -285,10 +353,7 @@ def main():
 
         subfiles = find_subfiles(file)
 
-        #find dat subfile and create unofficial parts in ldraw lib
-        for key in subfiles:
-            if '.dat' in key or '.DAT' in key:
-                create_part(subfiles, key)
+        build_subfiles(subfiles)
 
         #find subfile that contains the main model
         for key in subfiles:
