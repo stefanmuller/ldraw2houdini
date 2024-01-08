@@ -1,8 +1,8 @@
 # LDraw 2 Houdini
 
-### Import LDraw files directly into Houdini!
+### Import LDraw files directly into Houdini
 
-Source individual parts with the **Brickini LDraw Part HDA** or import entire models with a one-button shelf tool!
+Source individual parts or import entire models with a one-button shelf tool!
 
 [![render of example scene](/resources/help/brickini_example_scene.jpg)](https://youtu.be/JDEZ5LpPKfM)
 
@@ -14,10 +14,11 @@ Source individual parts with the **Brickini LDraw Part HDA** or import entire mo
 - **LDR, L3B & MPD file support:** mpd files contain multiple sub models, referenced by a main model
 - **Instancing support:** duplicate bricks are automatically packed and the color is read from the point data
 - **Imperfections:** if importing a model, the bricks are not perfectly stacked/aligned to each other, for a more realistic look and bricks can randomly yellow due to age.
+- **Injection points:** Options to procedurally add injection marks either on stud or on walls (vintage bricks ~70s and older)
 - **Gaps between bricks:** bricks can be slightly squashed to get tiny gaps between them
 - **Slope support** slopes are automatically detected so they can get a grainy texture
 - **Bevel and subdivison support:** geometry is automagically cleaned up as much as possible and LDraw lines are used to determine edges that need to be beveled to allow proper subdivision
-- **Cache toggle:** either load geo dynamically from LDraw library or save in hip file
+- **Auto caching** Every imported part will automatically be cached in LDraw library; Importing times will decrease the more LDraw2Houdini is used.
 - **Auto generate textures for prints/stickers** for modern cg workflows
 - **Auto uvs**
 - **Material properties:** simple config file to define softness, graininess and roughness for individual parts

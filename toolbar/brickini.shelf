@@ -8,20 +8,10 @@
   <toolshelf name="brickini" label="Brickini">
     <memberTool name="ldraw_part"/>
     <memberTool name="ldraw_model"/>
+    <memberTool name="ldraw_model_dynamic"/>
     <memberTool name="upgrade_brickini_hdas"/>
     <memberTool name="reload_brickini_nodes"/>
   </toolshelf>
-
-  <tool name="ldraw_model" label="LDraw Model" icon="brickini_import.png">
-    <helpText><![CDATA["""Import LDraw model"""]]></helpText>
-    <script scriptType="python"><![CDATA[import ldraw
-import importlib
-
-importlib.reload(ldraw)
-ldraw.main()
-   
-   ]]></script>
-  </tool>
 
   <tool name="ldraw_part" label="LDraw Part" icon="brickini_import_part.png">
     <helpText><![CDATA["""Import LDraw part"""]]></helpText>
@@ -29,9 +19,10 @@ ldraw.main()
 
 confirmed, input_value = hou.ui.readInput("Enter LDraw part number", buttons=('OK', 'Cancel'))
 
+print(confirmed)
 if confirmed == 0:
-    geometry_node = hou.node('/obj').createNode('geo', "brickini_ldraw_" + input_value + '_1')
-    brickini_node = geometry_node.createNode('brickini_ldraw_part')
+    geometry_node = hou.node('/obj').createNode('geo', 'brickini_ldraw_part_' + input_value + '_1')
+    brickini_node = geometry_node.createNode('brickini_ldraw_part', 'bldp_' + input_value + '_1')
     brickini_node.parm('part').set(input_value) ]]></script>
   </tool>
 
@@ -52,5 +43,16 @@ import importlib
 
 importlib.reload(brickini_utils)
 brickini_utils.reload_brickini_nodes()]]></script>
+  </tool>
+
+  <tool name="ldraw_model" label="LDraw Model" icon="brickini_import.png">
+    <helpText><![CDATA["""Import LDraw model"""]]></helpText>
+    <script scriptType="python"><![CDATA[import ldraw
+import importlib
+
+importlib.reload(ldraw)
+ldraw.main()
+   
+   ]]></script>
   </tool>
 </shelfDocument>

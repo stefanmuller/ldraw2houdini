@@ -15,6 +15,14 @@ def resources():
     resources = this_file.parent.parent / 'resources'
     return resources
 
+def color_lib():
+    '''Returns a dict of ldraw colors.'''
+    color_config = resources() / 'ld_colors.json'
+
+    with open(color_config, 'r') as f:
+        color_dict = json.load(f)
+    return color_dict
+
 # ldraw paths shortcuts
 p = ldraw_lib() / 'parts'
 ps = ldraw_lib() / 'parts' / 's'
@@ -30,16 +38,24 @@ pr8_u = ldraw_lib() / 'UnOfficial' / 'p' / '8'
 pr_l2h = resources() / 'ldraw' / 'p'
 
 part_list = dict()
-
-def color_lib():
-    '''Returns a dict of ldraw colors.'''
-    color_config = resources() / 'ld_colors.json'
-
-    with open(color_config, 'r') as f:
-        color_dict = json.load(f)
-    return color_dict
-
+unofficial_file_rewrite = False
 color_dict = color_lib()
+
+def material_group():
+    result_list = []
+    count = 0
+
+    # Iterate over the color data
+    for code, color_info in color_dict.items():
+        category = color_info['category']
+
+        # Check if the category is new
+        if category not in result_list:
+            # result_list.append(count)
+            result_list.append(category)
+            count += 1
+
+    return result_list
 
 def get_matrix(line):
     '''Returns a houdini matrix from a line of an ldraw file.'''
@@ -50,7 +66,6 @@ def get_matrix(line):
 
 def strip_special_characters(input_string):
     return re.sub('[^0-9a-zA-Z_-]+', '', input_string)
-
 
 def find_subfiles(file):
     '''Returns a dict of subfiles from an mpd file.'''
@@ -108,9 +123,9 @@ def place_part(color_code, part, geo_node):
         part_sop_name = 'bldp_{0}_'.format(part_sop_name)              
         part_sop = geo_node.createNode('brickini_ldraw_part', part_sop_name)
 
-        part_sop.parm('part').set(part_name)
         part_sop.parm('pack').set(1)
         part_sop.parm('gap').set(1)
+        part_sop.parm('part').set(part_name)
 
         part_list[part] = part_sop
     else:
@@ -189,11 +204,14 @@ def create_part_point(geo, color_code, part, m4):
         # part_name = part
 
     part_point = geo.createPoint()
+    material_type = material_group().index(color_dict[color_code]["category"])
 
     point_type = "part" if isdat else "subcomponent"
     part_point.setAttribValue("type", point_type)
     part_point.setAttribValue('part', part_name)
     part_point.setAttribValue('Cd', color_dict[color_code]["rgb"])
+    part_point.setAttribValue('color_code', int(color_code))
+    part_point.setAttribValue('material_type', material_type)
 
     transform_part_point(part_point, m4)
 
@@ -258,6 +276,8 @@ def build_model_points(geo, file):
     geo.addAttrib(hou.attribType.Point, "Cd", hou.Vector3(1.0, 1.0, 1.0))
     geo.addAttrib(hou.attribType.Point, "xform", hou.Matrix4(1.0).asTuple())
     geo.addAttrib(hou.attribType.Point, "modelname", "")
+    geo.addAttrib(hou.attribType.Point, 'color_code', 0)
+    geo.addAttrib(hou.attribType.Point, 'material_type', 0)
 
     with open(file) as f:
         model_name = ""
@@ -314,14 +334,11 @@ def create_part(subfiles, key):
             # if meta not present we just have to assume it's a part
             file = p_u / key_name
 
-            # if file already exists, delete it
-            if file.exists():
-                file.unlink()
-
-    for line in subfiles[key]:
-        # write list to file
-        with open(file, 'a') as f:
-            f.write(line)
+    # write list to file
+    if unofficial_file_rewrite or file.exists() == False:
+        with open(file, 'w') as f:
+            for line in subfiles[key]:
+                f.write(line)
 
 def build_subfiles(subfiles):
     # create unofficial directories if they don't exist
@@ -341,7 +358,7 @@ def main():
     file = Path(file)
     model_master_name = file.stem
     model_master_name = strip_special_characters(model_master_name)
-    model_master_name = 'ldraw_model_{}'.format(model_master_name)
+    model_master_name = 'brickini_ldraw_model_{}'.format(model_master_name)
     print('building {} ...'.format(model_master_name))
 
     # depending on suffix either process as mpd (multi part document) or ldr
