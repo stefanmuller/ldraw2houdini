@@ -46,16 +46,17 @@ Source individual parts or import entire models with a one-button shelf tool!
 6. Adjust the ldraw2houdini.json if needed.
     - Under Windows $HOME points to C:\Users\<username>\Documents
     - Under Linux $HOME is ~/
+    - Set LDRAW_CACHE to 1 to enable caching. It will write bgeo files to $LDRAW_LIB/bgeo
 
-
-            {
-            "env": [
-            { "LDRAW_LIB": "$HOME/ldraw" }
-            ],
-            "path": [
-            "$HOME/git/ldraw2houdini"
-            ]
-            }
+                {
+                "env": [
+                        { "LDRAW_LIB": "$HOME/ldraw" },
+                        { "LDRAW_CACHE": 0 }
+                ],
+                "path": [
+                        "$HOME/git/ldraw2houdini"
+                ]
+                }
 
 7. **Optional** - If you install a new release and want to upgrade your hdas in an existing scene run the **Upgrade Brickini HDAs Shelf Tool**
 
@@ -83,7 +84,7 @@ Source individual parts or import entire models with a one-button shelf tool!
 
 ## Resources
 
-- [LDraw Official Model Repository](https://omr.ldraw.org/)  
+- [LDraw Official Model Repository](https://library.ldraw.org/omr)  
 - Official sets made in LDraw
 [Eurobricks Thread](https://www.eurobricks.com/forum/index.php?/forums/topic/48285-key-topic-official-lego-sets-made-in-ldraw/)
 

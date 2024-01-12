@@ -19,7 +19,6 @@
 
 confirmed, input_value = hou.ui.readInput("Enter LDraw part number", buttons=('OK', 'Cancel'))
 
-print(confirmed)
 if confirmed == 0:
     geometry_node = hou.node('/obj').createNode('geo', 'brickini_ldraw_part_' + input_value + '_1')
     brickini_node = geometry_node.createNode('brickini_ldraw_part', 'bldp_' + input_value + '_1')

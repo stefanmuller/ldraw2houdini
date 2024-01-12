@@ -10,6 +10,12 @@ class ldrawPart:
         self.ldraw_lib = ldraw.ldraw_lib()
         self.color_dict = ldraw.color_lib()
         self.default_color = hou.Vector3(1, 1, 1)
+        self.ldraw_cache = hou.getenv('LDRAW_CACHE')
+ 
+        if self.ldraw_cache != 1 and self.ldraw_cache != "1":
+            self.ldraw_cache = 0
+        else:
+            self.ldraw_cache = 1
 
         # python sop
         self.node = node
@@ -28,6 +34,8 @@ class ldrawPart:
         self.geo = self.node.geometry()
 
         # write attributes
+        self.geo.addAttrib(hou.attribType.Global, 'cache', self.ldraw_cache)
+
         self.geo.addArrayAttrib(hou.attribType.Global, 'part_color', hou.attribData.Float)
         self.geo.setGlobalAttribValue('part_color', self.color_dict[str(self.parm_material)]['rgb'])
 
