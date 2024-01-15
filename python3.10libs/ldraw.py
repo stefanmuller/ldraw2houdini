@@ -11,8 +11,8 @@ def ldraw_lib():
 
 def resources():
     '''Returns the path to the resources folder.'''
-    this_file = Path(__file__).resolve()
-    resources = this_file.parent.parent / 'resources'
+    ldraw2houdini_path = Path(hou.getenv('LDRAW2HOUDINI'))
+    resources = ldraw2houdini_path / 'resources'
     return resources
 
 def color_lib():
@@ -201,7 +201,6 @@ def create_part_point(geo, color_code, part, m4):
     if isdat:
         part_name = part_name.replace('.dat', '').replace('.DAT', '')
         part_name = part_name.replace(' ', '')
-        # part_name = part
 
     part_point = geo.createPoint()
     material_type = material_group().index(color_dict[color_code]["category"])
@@ -353,7 +352,7 @@ def build_subfiles(subfiles):
 
 def main():
     '''Main function.'''
-    file = hou.ui.selectFile(start_directory=None, title=None, collapse_sequences=False, file_type=hou.fileType.Any, pattern=None, default_value=None, multiple_select=False, image_chooser=None, chooser_mode=hou.fileChooserMode.Read, width=0, height=0)
+    file = hou.ui.selectFile(start_directory=None, title=None, collapse_sequences=False, file_type=hou.fileType.Any, pattern='*.ldr, *.l3b, *.mpd', default_value=None, multiple_select=False, image_chooser=None, chooser_mode=hou.fileChooserMode.Read, width=0, height=0)
     file = hou.expandString(file)
     file = Path(file)
     model_master_name = file.stem

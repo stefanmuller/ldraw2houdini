@@ -253,6 +253,12 @@ class ldrawPart:
                             else:
                                 winding_sub = 'CCW'
 
+                    # inverse winding order until end of file or until next such statement found
+                    elif line[1] == 'BFC' and line[2] == 'CW':
+                        winding_sub = 'CW'
+                    elif line[1] == 'BFC' and line[2] == 'CCW':
+                        winding_sub = 'CCW'
+
                     # subpart that we'll find in the line after this one needs to be inversed
                     elif line[1] == 'BFC' and line[2] == 'INVERTNEXT':
                         invert_next = True
@@ -303,7 +309,6 @@ class ldrawPart:
 
                 # tri
                 elif line[0] == '3':
-                    pass
                     color, static_color, color_code = self.get_color(line[1], color_group)
                     points = self.extract_points(line, 3, winding_sub)
                     if info != 'print' or (info == 'print' and color_code != '16'):
@@ -312,7 +317,6 @@ class ldrawPart:
 
                 # quad
                 elif line[0] == '4':
-                    pass
                     color, static_color, color_code = self.get_color(line[1], color_group)
                     points = self.extract_points(line, 4, winding_sub)
                     if info != 'print' or (info == 'print' and color_code != '16'):

@@ -34,27 +34,30 @@ Source individual parts or import entire models with a one-button shelf tool!
 
 1. Download the latest release 
 2. Unpack to a directory called **ldraw2houdini**
-3. Download [LDraw parts library](https://library.ldraw.org/updates?latest)
+3. Download [LDraw parts library](https://library.ldraw.org/updates?latest) - (complete.zip)
 4. Unpack to a directory called **ldraw**
-5. Register the **ldraw2houdini.json** package in Houdini by dropping it for example here:
+5. Register **ldraw2houdini.json** (separate asset in release). Drop it for example here:
 
         # Windows
-        C:\Users\<username>\Documents\houdini19.5\packages
+        C:\Users\<username>\Documents\houdiniXX.X\packages
         # Linux
-        ~/houdini19.5/packages
+        ~/houdiniXX.X/packages
 
-6. Adjust the ldraw2houdini.json if needed.
-    - Under Windows $HOME points to C:\Users\<username>\Documents
+6. Adjust **ldraw2houdini.json** if needed.
+    - LDRAW2HOUDINI needs to point to the path of this plugin
+    - LDRAW_LIB needs to point to the LDraw library
+    - Under Windows $HOME points to C:\Users\\\<username>\Documents
     - Under Linux $HOME is ~/
-    - Set LDRAW_CACHE to 1 to enable caching. It will write bgeo files to $LDRAW_LIB/bgeo
+    - Set LDRAW_CACHE to 1 to enable caching. This will write bgeo files to $LDRAW_LIB/bgeo
 
                 {
                 "env": [
+                        { "LDRAW2HOUDINI": "$HOME/git/ldraw2houdini" },
                         { "LDRAW_LIB": "$HOME/ldraw" },
                         { "LDRAW_CACHE": 0 }
                 ],
                 "path": [
-                        "$HOME/git/ldraw2houdini"
+                        "${LDRAW2HOUDINI}"
                 ]
                 }
 
