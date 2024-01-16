@@ -32,18 +32,26 @@ Source individual parts or import entire models with a one-button shelf tool!
 
 ## Installation
 
-1. Download the latest release 
+1. Download the latest release
 2. Unpack to a directory called **ldraw2houdini**
+
+        # Windows C:\Users\<username>\Documents\git\ldraw2houdini 
+        # Linux ~/git/ldraw2houdini
+
 3. Download [LDraw parts library](https://library.ldraw.org/updates?latest) - (complete.zip)
 4. Unpack to a directory called **ldraw**
-5. Register **ldraw2houdini.json** (separate asset in release). Drop it for example here:
 
-        # Windows
-        C:\Users\<username>\Documents\houdiniXX.X\packages
-        # Linux
-        ~/houdiniXX.X/packages
+        # Windows C:\Users\<username>\Documents\ldraw
+        # Linux ~/ldraw
 
-6. Adjust **ldraw2houdini.json** if needed.
+5. Download **ldraw2houdini.json** from release page. Place it in the Houdini packages folder.
+6. If packages folder doesn't exist create it yourself.
+
+        # Windows C:\Users\<username>\Documents\houdiniXX.X\packages
+        # Linux ~/houdiniXX.X/packages
+
+7. Launch Houdini - Happy ldrawing!
+8. **Optional** - If you placed anything in different paths, adjust **ldraw2houdini.json** accordingly.
     - LDRAW2HOUDINI needs to point to the path of this plugin
     - LDRAW_LIB needs to point to the LDraw library
     - Under Windows $HOME points to C:\Users\\\<username>\Documents
@@ -61,9 +69,8 @@ Source individual parts or import entire models with a one-button shelf tool!
                 ]
                 }
 
-7. **Optional** - If you install a new release and want to upgrade your hdas in an existing scene run the **Upgrade Brickini HDAs Shelf Tool**
+9. **Optional** - If you install a new release and want to upgrade your hdas in an existing scene run the **Upgrade Brickini HDAs Shelf Tool**
 
-8. Happy ldrawing!
 
 ## Quickstart Guide
 
