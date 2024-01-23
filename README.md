@@ -2,7 +2,7 @@
 
 ### Import LDraw files directly into Houdini
 
-Source individual parts or import entire models with a one-button shelf tool!
+Source individual parts or import entire models with one-button shelf tools!
 
 [![render of example scene](/resources/help/brickini_example_scene.jpg)](https://youtu.be/JDEZ5LpPKfM)
 
@@ -13,12 +13,12 @@ Source individual parts or import entire models with a one-button shelf tool!
 - **Logo on studs**
 - **LDR, L3B & MPD file support:** mpd files contain multiple sub models, referenced by a main model
 - **Instancing support:** duplicate bricks are automatically packed and the color is read from the point data
-- **Imperfections:** if importing a model, the bricks are not perfectly stacked/aligned to each other, for a more realistic look and bricks can randomly yellow due to age.
-- **Injection points:** Options to procedurally add injection marks either on stud or on walls (vintage bricks ~70s and older)
+- **Imperfections:** if importing a model, the bricks are not perfectly stacked/aligned to each other for a more realistic look. Bricks can also randomly yellow due to age.
+- **Injection points:** options to procedurally add injection marks either on stud or on walls (vintage bricks ~70s and older)
 - **Gaps between bricks:** bricks can be slightly squashed to get tiny gaps between them
 - **Slope support** slopes are automatically detected so they can get a grainy texture
 - **Bevel and subdivison support:** geometry is automagically cleaned up as much as possible and LDraw lines are used to determine edges that need to be beveled to allow proper subdivision
-- **Auto caching** Every imported part will automatically be cached in LDraw library; Importing times will decrease the more LDraw2Houdini is used.
+- **Auto caching** every imported part will automatically be cached in LDraw library; Importing times will decrease the more LDraw2Houdini is used.
 - **Auto generate textures for prints/stickers** for modern cg workflows
 - **Auto uvs**
 - **Material properties:** simple config file to define softness, graininess and roughness for individual parts
@@ -51,7 +51,10 @@ Source individual parts or import entire models with a one-button shelf tool!
         # Linux ~/houdiniXX.X/packages
 
 7. Launch Houdini - Happy ldrawing!
-8. **Optional** - If you placed anything in different paths, adjust **ldraw2houdini.json** accordingly.
+
+### Optional Steps
+
+8. If you placed anything in different paths, adjust **ldraw2houdini.json** accordingly.
     - LDRAW2HOUDINI needs to point to the path of this plugin
     - LDRAW_LIB needs to point to the LDraw library
     - Under Windows $HOME points to C:\Users\\\<username>\Documents
@@ -69,7 +72,7 @@ Source individual parts or import entire models with a one-button shelf tool!
                 ]
                 }
 
-9. **Optional** - If you install a new release and want to upgrade your hdas in an existing scene run the **Upgrade Brickini HDAs Shelf Tool**
+9. If you install a new release and want to upgrade your hdas in an existing scene run the **Upgrade Brickini HDAs Shelf Tool**
 
 
 ## Quickstart Guide
@@ -87,10 +90,14 @@ Source individual parts or import entire models with a one-button shelf tool!
 
 1. Add the Brickini Shelf to your toolbar 
 2. Click **LDraw Model**
-3. Choose a LDraw model file
+3. Choose an LDraw model file
 4. Behold the beauty
 
 ![boutique hotel](/resources/help/brickini_ldraw_model.jpg)
+
+## Contributions
+- LDraw Model HDA (Dynamic mode): Kai Stavginski
+- Auto caching concept/idea: Kai Stavginski
 
 ## Resources
 

@@ -2,7 +2,6 @@
 from pathlib import Path, PureWindowsPath
 import ldraw
 import hou
-import json
 import re
 
 class ldrawPart:
@@ -10,6 +9,7 @@ class ldrawPart:
         self.ldraw_lib = ldraw.ldraw_lib()
         self.color_dict = ldraw.color_lib()
         self.default_color = hou.Vector3(1, 1, 1)
+        self.compound_part = 0
 
         # python sop
         self.node = node
@@ -42,21 +42,13 @@ class ldrawPart:
 
         if not self.parm_pack:
             self.geo.addAttrib(hou.attribType.Vertex, 'Cd', self.default_color)
-            self.geo.addAttrib(hou.attribType.Vertex, 'material_type', self.parm_material_group)
         else:
             self.geo.addAttrib(hou.attribType.Vertex, 'Cd2', self.default_color)
             self.geo.addAttrib(hou.attribType.Vertex, 'color_mode', 0)
 
+        self.mat_attribute = self.geo.addAttrib(hou.attribType.Vertex, 'material_type', self.parm_material_group)
         self.geo.addAttrib(hou.attribType.Point, 'info', '')
         self.geo.addAttrib(hou.attribType.Vertex, 'color_code', 0)
-
-    def part_properties(self, property):
-        properties = ldraw.resources() / 'part_properties.json'
-        with open(properties) as f:
-            data = json.load(f)
-        property = data[property]
-
-        return property
 
     def extract_points(self, line, vertnum, winding):
         '''extract the vert positions and put them into the correct winding order'''
@@ -75,7 +67,7 @@ class ldrawPart:
 
         return points
 
-    def create_poly(self, points, m4, color, static_color, color_code, info):
+    def create_poly(self, points, m4, color, static_color, color_code, info, mat_type):
         '''create geometry and write info and color attributes'''
         poly = self.geo.createPolygon()
         for position in points:
@@ -85,6 +77,7 @@ class ldrawPart:
 
             if len(points) > 2:
                 v.setAttribValue('color_code', int(color_code))
+                v.setAttribValue('material_type', mat_type)
                 point.setAttribValue('info', info)
 
                 if not self.parm_pack:
@@ -95,8 +88,6 @@ class ldrawPart:
                         v.setAttribValue('color_mode', 1)
             else:
                 poly.setIsClosed(False)
-        
-
 
         self.geo.transformPrims([poly], m4)
         return poly
@@ -142,13 +133,16 @@ class ldrawPart:
         '''
         static_color = False
         color_code = '16'
+        mat_type = self.parm_material_group
         if color == '16':
             if color_group == '16':
                 color = self.color_dict[str(self.parm_material)]['rgb']
-
             else:
                 color_code = color_group
                 color = self.color_dict[color_group]['rgb']
+                mat_type = ldraw.material_group().index(self.color_dict[color_code]["category"])
+                if mat_type != 0:
+                    self.compound_part = 1
                 static_color = True
         else:
             # if x in color it's a direct color that looks like this: 0x2995220
@@ -164,8 +158,7 @@ class ldrawPart:
                     static_color = True
                 except:
                     color = hou.Vector3(1, 0, 0.5)
-        return color, static_color, color_code
-
+        return color, static_color, color_code, mat_type
 
     def path_resolve(self, part):
         '''
@@ -195,7 +188,6 @@ class ldrawPart:
                             highres_part = ldraw.pr48 / p
                             if  highres_part.exists():
                                 part_dir = highres_part
-
                     else:
                         part_dir = ldraw.p_u / p
                         if not part_dir.exists():
@@ -219,7 +211,6 @@ class ldrawPart:
 
         return part_dir
 
-    
     def read_part(self, part, m4, winding, color_code, info):
         '''
         recursive function that reads the part and then either creates
@@ -262,11 +253,14 @@ class ldrawPart:
                     # subpart that we'll find in the line after this one needs to be inversed
                     elif line[1] == 'BFC' and line[2] == 'INVERTNEXT':
                         invert_next = True
-                        # print ('we invert')
 
                 # part/prim reference
                 if line[0] == '1':
                     part = ' '.join(line[14:])
+
+                    # if separate mode we don't process studs from base part, but only from the printed one
+                    if self.parm_print == 1 and info != 'print' and 'stud' in part:
+                        continue
 
                     # load special stud-instance which is just a helper prim to be able to instance the actual stud geo in the hda network
                     if self.parm_stud:
@@ -309,18 +303,18 @@ class ldrawPart:
 
                 # tri
                 elif line[0] == '3':
-                    color, static_color, color_code = self.get_color(line[1], color_group)
+                    color, static_color, color_code, mat_type = self.get_color(line[1], color_group)
                     points = self.extract_points(line, 3, winding_sub)
                     if info != 'print' or (info == 'print' and color_code != '16'):
-                        poly = self.create_poly(points, m4, color, static_color, color_code, info)
+                        poly = self.create_poly(points, m4, color, static_color, color_code, info, mat_type)
                         poly_list.append(poly)
 
                 # quad
                 elif line[0] == '4':
-                    color, static_color, color_code = self.get_color(line[1], color_group)
+                    color, static_color, color_code, mat_type = self.get_color(line[1], color_group)
                     points = self.extract_points(line, 4, winding_sub)
                     if info != 'print' or (info == 'print' and color_code != '16'):
-                        poly = self.create_poly(points, m4, color, static_color, color_code, info)
+                        poly = self.create_poly(points, m4, color, static_color, color_code, info, mat_type)
                         poly_list.append(poly)
 
                 # lines
@@ -329,44 +323,24 @@ class ldrawPart:
                         color = [0,0,0]
                         static_color = False
                         points = self.extract_points(line, 2, winding_sub)
-                        poly = self.create_poly(points, m4, color, static_color, color_code, '')
+                        poly = self.create_poly(points, m4, color, static_color, color_code, '', 0)
                         poly_list.append(poly)
-                    
 
         return poly_list
-
-    def set_vertex_attribute(self, attribute, value, prim_list=[]):
-        prims = self.geo.iterPrims()
-        for p in prims:
-            if p.number() in prim_list or not prim_list:
-                prim_vertices = p.vertices()
-                for v in prim_vertices:
-                    v.setAttribValue(attribute, value) 
-
-    def convert_houdini_list(self, prim_string):
-        '''
-        converts a houdini list that looks like this: '1-3 6 9-12' into a numbered list
-        '''
-        prim_list = []
-        for part in prim_string.split():
-            if '-' in part:
-                start, end = map(int, part.split('-'))
-                prim_list.extend(range(start, end + 1))
-            else:
-                prim_list.append(int(part))
-        return prim_list
 
     def __call__(self):
         # print handling
         # load brick as set in parm parameter by default
         # load base brick if mode is set to separate and only keep print geo from actual brick
         # load base brick if mode is set to texture and we create uvs in the hda
+
         base_part = self.parm_part
-        print_str = re.search('[a-zA-Z]+.*', self.parm_part)
+        print_str = re.search('[pP].*', self.parm_part)
 
         if print_str != None:
             print_str = print_str.group()
             base_part = self.parm_part.replace(print_str, '')
+            base_part = re.sub('\d+-', '', base_part) # remove model string from unofficial mpd part files
 
         if self.parm_print > 0 and print_str != None:
             if self.parm_print == 1:
@@ -378,6 +352,11 @@ class ldrawPart:
         part_path = self.path_resolve(self.parm_part + '.dat')
         part_geo = self.read_part(part_path, hou.hmath.identityTransform(), 'CCW', '16', 'base')
 
+        # if we pack, we can't have the material attribute here, as it needs to be a point attribute set in brickini_material
+        # however, for compound attributes we keep it and the compound materials have to be controlled in ldraw_part directly
+        if self.parm_pack == 1 and self.compound_part == 0:
+            self.mat_attribute.destroy()
+    
         # adjust for houdini coord system
         transform_dict = dict()
         transform_dict['rotate'] = (180, 0, 0)
@@ -390,34 +369,3 @@ class ldrawPart:
             pass
 
         self.geo.transformPrims(part_geo, m4_part)
-
-        # additional part properties
-
-        # slope attribute
-        if base_part in self.part_properties('slopes'):
-            self.geo.addAttrib(hou.attribType.Global, 'slope_part', 1)
-
-        # softness attribute
-        softness = self.part_properties('softness').get(base_part)
-        if softness:
-            self.geo.addAttrib(hou.attribType.Vertex, 'softness', 0.0)
-            self.set_vertex_attribute('softness', float(softness))
-
-        # roughness attribute
-        roughness = self.part_properties('roughness').get(base_part)
-        if roughness:
-            self.geo.addAttrib(hou.attribType.Vertex, 'roughness', 0.0)
-            self.set_vertex_attribute('roughness', float(roughness))
-
-        # graininess attribute
-        graininess = self.part_properties('graininess').get(base_part)
-        if graininess:
-            self.geo.addAttrib(hou.attribType.Vertex, 'graininess', 0.0)
-            vertex_list = self.convert_houdini_list(graininess[1])
-            self.set_vertex_attribute('graininess', float(graininess[0]), vertex_list)
-
-        # injection point attribute
-        injection_point = self.part_properties('injection_point').get(base_part)
-        if injection_point:            
-            self.geo.addArrayAttrib(hou.attribType.Global, 'injection_point', hou.attribData.String)
-            self.geo.setGlobalAttribValue('injection_point', injection_point)

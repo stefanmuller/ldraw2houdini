@@ -124,6 +124,7 @@ def place_part(color_code, part, geo_node):
         part_sop = geo_node.createNode('brickini_ldraw_part', part_sop_name)
 
         part_sop.parm('pack').set(1)
+        part_sop.parm('print_handling').set(1)
         part_sop.parm('gap').set(1)
         part_sop.parm('part').set(part_name)
 
@@ -287,16 +288,13 @@ def build_model_points(geo, file):
                 continue
 
             pattern = r"0 FILE (.+)$"
-
-            # Use re.search to find the match
-
             match = re.search(pattern, line)
-            # Check if a match is found
             if match:
                 model_name = match.group(1).lower().strip()
 
             if line[0] == '1':
                 part = ' '.join(lineparts[14:])
+                part = part.replace('s\\', '').replace('s/', '').replace('8\\', '').replace('8/', '').replace('48\\', '').replace('48/', '')
 
                 color_code = lineparts[1]
                 m4 = get_matrix(lineparts)
@@ -368,7 +366,6 @@ def main():
         geo_node = hou.node('/obj').createNode('geo', model_master_name)
 
         subfiles = find_subfiles(file)
-
         build_subfiles(subfiles)
 
         #find subfile that contains the main model

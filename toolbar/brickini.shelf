@@ -63,18 +63,20 @@ from pathlib import Path
 file = hou.ui.selectFile(start_directory=None, title=None, collapse_sequences=False, file_type=hou.fileType.Any, pattern='*.ldr, *.l3b, *.mpd', default_value=None, multiple_select=False, image_chooser=None, chooser_mode=hou.fileChooserMode.Read, width=0, height=0)
 
 expanded_file = hou.expandString(file)
-expanded_file = Path(expanded_file)
 
-model_name = expanded_file.stem
-model_name = ldraw.strip_special_characters(model_name)
-model_node_name = 'brickini_ldraw_model_{}'.format(model_name)
-
-geometry_node = hou.node('/obj').createNode('geo', model_node_name)
-bm = geometry_node.createNode('brickini_ldraw_model', 'bldm_' + model_name)
-bm.parm('ldrawfile').set(file)
-bi = bm.createOutputNode('brickini_imperfections')
-o = bi.createOutputNode('null', 'OUT')
-o.setRenderFlag(True)
-o.setDisplayFlag(True)]]></script>
+if expanded_file != '':
+    expanded_file = Path(expanded_file)
+    
+    model_name = expanded_file.stem
+    model_name = ldraw.strip_special_characters(model_name)
+    model_node_name = 'brickini_ldraw_model_{}'.format(model_name)
+    
+    geometry_node = hou.node('/obj').createNode('geo', model_node_name)
+    bm = geometry_node.createNode('brickini_ldraw_model', 'bldm_' + model_name)
+    bm.parm('ldrawfile').set(file)
+    bi = bm.createOutputNode('brickini_imperfections')
+    o = bi.createOutputNode('null', 'OUT')
+    o.setRenderFlag(True)
+    o.setDisplayFlag(True)]]></script>
   </tool>
 </shelfDocument>
