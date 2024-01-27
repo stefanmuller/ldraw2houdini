@@ -211,7 +211,7 @@ class ldrawPart:
 
         return part_dir
 
-    def read_part(self, part, m4, winding, color_code, info):
+    def read_part(self, part, m4, winding, color_code, info, stud_processing):
         '''
         recursive function that reads the part and then either creates
         lines, tris, quads or reads subparts inside the part
@@ -259,7 +259,7 @@ class ldrawPart:
                     part = ' '.join(line[14:])
 
                     # if separate mode we don't process studs from base part, but only from the printed one
-                    if self.parm_print == 1 and info != 'print' and 'stud' in part:
+                    if stud_processing == 0 and 'stud' in part:
                         continue
 
                     # load special stud-instance which is just a helper prim to be able to instance the actual stud geo in the hda network
@@ -270,6 +270,8 @@ class ldrawPart:
                         elif part == 'stud2.dat':
                             part = 'stud-instance.dat'
                             info_group = 'stud2'
+                        elif 'stud' in part:
+                            info_group = 'studX'
                         else:
                             info_group = info
 
@@ -297,7 +299,7 @@ class ldrawPart:
                     winding_group = self.determine_winding(winding_group, m4_group, invert_next)
                     invert_next = False
 
-                    poly_list_sub = self.read_part(part, m4_group, winding_group, color_code, info_group)
+                    poly_list_sub = self.read_part(part, m4_group, winding_group, color_code, info_group, stud_processing)
                     self.geo.transformPrims(poly_list_sub, m4)
                     poly_list.extend(poly_list_sub)
 
@@ -336,6 +338,7 @@ class ldrawPart:
 
         base_part = self.parm_part
         print_str = re.search('[pP].*', self.parm_part)
+        stud_processing = 1
 
         if print_str != None:
             print_str = print_str.group()
@@ -345,12 +348,13 @@ class ldrawPart:
         if self.parm_print > 0 and print_str != None:
             if self.parm_print == 1:
                 part_path = self.path_resolve(self.parm_part + '.dat')
-                part_geo_print = self.read_part(part_path, hou.hmath.identityTransform(), 'CCW', '16', 'print')
+                part_geo_print = self.read_part(part_path, hou.hmath.identityTransform(), 'CCW', '16', 'print', 1)
+                stud_processing = 0
 
             self.parm_part = base_part
 
         part_path = self.path_resolve(self.parm_part + '.dat')
-        part_geo = self.read_part(part_path, hou.hmath.identityTransform(), 'CCW', '16', 'base')
+        part_geo = self.read_part(part_path, hou.hmath.identityTransform(), 'CCW', '16', 'base', stud_processing)
 
         # if we pack, we can't have the material attribute here, as it needs to be a point attribute set in brickini_material
         # however, for compound attributes we keep it and the compound materials have to be controlled in ldraw_part directly

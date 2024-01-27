@@ -32,7 +32,7 @@ Source individual parts or import entire models with one-button shelf tools!
 
 ## Installation
 
-1. Download the latest release
+1. Download the latest [release](https://github.com/stefanmuller/ldraw2houdini/releases)
 2. Unpack to a directory called **ldraw2houdini**
 
         # Windows C:\Users\<username>\Documents\git\ldraw2houdini 
@@ -44,7 +44,7 @@ Source individual parts or import entire models with one-button shelf tools!
         # Windows C:\Users\<username>\Documents\ldraw
         # Linux ~/ldraw
 
-5. Download **ldraw2houdini.json** from release page. Place it in the Houdini packages folder.
+5. Download **ldraw2houdini.json** from [release page](https://github.com/stefanmuller/ldraw2houdini/releases). Place it in the Houdini packages folder.
 6. If packages folder doesn't exist create it yourself.
 
         # Windows C:\Users\<username>\Documents\houdiniXX.X\packages
@@ -79,7 +79,7 @@ Source individual parts or import entire models with one-button shelf tools!
 
 ### Import a single part
 
-1. Create a **Brickini LDraw Part** node in SOP context
+1. Create a **Brickini LDraw Part** node inside a Geometry node in SOP context
 2. Type a cool part number into the **Part** parameter: 2546p01
 3. Change **Material** parameter to red
 4. Look at that awesome classic parrot
