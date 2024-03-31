@@ -1,4 +1,4 @@
-# LDraw 2 Houdini
+# LDraw2Houdini
 
 ### Import LDraw files directly into Houdini
 
@@ -26,7 +26,7 @@ Source individual parts or import entire models with one-button shelf tools!
 - **ACES colorspace:** LDraw colors are converted to acescg
 
 ## Requirements
-- Houdini 20
+- Houdini 20 (Py 3.10)
 - SideFX Labs for auto uv feature
 - OCIO ACES colorspace configuration for Houdini
 
@@ -53,8 +53,9 @@ Source individual parts or import entire models with one-button shelf tools!
 7. Launch Houdini - Happy ldrawing!
 
 ### Optional Steps
+8. Make sure you have Houdini 20 with **Python 3.10** installed. If you are running 3.9 you have to rename the **python3.10libs** folder to **python3.9libs**
 
-8. If you placed anything in different paths, adjust **ldraw2houdini.json** accordingly.
+9. If you placed anything in different paths, adjust **ldraw2houdini.json** accordingly.
     - LDRAW2HOUDINI needs to point to the path of this plugin
     - LDRAW_LIB needs to point to the LDraw library
     - Under Windows $HOME points to C:\Users\\\<username>\Documents
@@ -72,7 +73,8 @@ Source individual parts or import entire models with one-button shelf tools!
                 ]
                 }
 
-9. If you install a new release and want to upgrade your hdas in an existing scene run the **Upgrade Brickini HDAs Shelf Tool**
+10. If you install a new release and want to upgrade your hdas in an existing scene run the **Upgrade Brickini HDAs Shelf Tool**
+11. See [release notes](https://github.com/stefanmuller/ldraw2houdini/releases) for more details and explanations of specific features
 
 
 ## Quickstart Guide
@@ -89,9 +91,12 @@ Source individual parts or import entire models with one-button shelf tools!
 ### Import an entire model
 
 1. Add the Brickini Shelf to your toolbar 
-2. Click **LDraw Model**
+2. Click **LDraw Model** or **LDraw Model Dynamic**
 3. Choose an LDraw model file
-4. Behold the beauty
+4. Prints won't show up in the viewport, if bricks are packed (default) but are supported when rendering with Karma/Solaris
+5. Example scene with Karma material can be found here:
+
+        ldraw2houdini/resources/example_files/example_scene.hiplc
 
 ![boutique hotel](/resources/help/brickini_ldraw_model.jpg)
 
