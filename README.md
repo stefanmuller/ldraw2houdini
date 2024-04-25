@@ -60,7 +60,6 @@ Source individual parts or import entire models with one-button shelf tools!
     - LDRAW_LIB needs to point to the LDraw library
     - Under Windows $HOME points to C:\Users\\\<username>\Documents
     - Under Linux $HOME is ~/
-    - Set LDRAW_CACHE to 1 to enable caching. This will write bgeo files to $LDRAW_LIB/bgeo
 
                 {
                 "env": [
@@ -73,8 +72,9 @@ Source individual parts or import entire models with one-button shelf tools!
                 ]
                 }
 
-10. If you install a new release and want to upgrade your hdas in an existing scene run the **Upgrade Brickini HDAs Shelf Tool**
-11. See [release notes](https://github.com/stefanmuller/ldraw2houdini/releases) for more details and explanations of specific features
+10. Set LDRAW_CACHE to 0 or 1 to enable/disable caching. This will write bgeo files to **$LDRAW_LIB/bgeo**. Remember to delete this folder if you update your LDraw parts library.
+11. If you install a new release and want to upgrade your hdas in an existing scene run the **Upgrade Brickini HDAs Shelf Tool**
+12. See [release notes](https://github.com/stefanmuller/ldraw2houdini/releases) for more details and explanations of specific features
 
 
 ## Quickstart Guide

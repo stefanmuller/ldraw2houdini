@@ -9,7 +9,6 @@ class ldrawPart:
         self.ldraw_lib = ldraw.ldraw_lib()
         self.color_dict = ldraw.color_lib()
         self.default_color = hou.Vector3(1, 1, 1)
-        self.compound_part = 0
 
         # python sop
         self.node = node
@@ -42,11 +41,12 @@ class ldrawPart:
 
         if not self.parm_pack:
             self.geo.addAttrib(hou.attribType.Vertex, 'Cd', self.default_color)
+            self.geo.addAttrib(hou.attribType.Vertex, 'material_type', self.parm_material_group)
         else:
             self.geo.addAttrib(hou.attribType.Vertex, 'Cd2', self.default_color)
+            self.geo.addAttrib(hou.attribType.Vertex, 'material_type2', self.parm_material_group)
             self.geo.addAttrib(hou.attribType.Vertex, 'color_mode', 0)
 
-        self.mat_attribute = self.geo.addAttrib(hou.attribType.Vertex, 'material_type', self.parm_material_group)
         self.geo.addAttrib(hou.attribType.Point, 'info', '')
         self.geo.addAttrib(hou.attribType.Vertex, 'color_code', 0)
 
@@ -77,13 +77,15 @@ class ldrawPart:
 
             if len(points) > 2:
                 v.setAttribValue('color_code', int(color_code))
-                v.setAttribValue('material_type', mat_type)
+
                 point.setAttribValue('info', info)
 
                 if not self.parm_pack:
                     v.setAttribValue('Cd', color)
+                    v.setAttribValue('material_type', mat_type)
                 else:
                     v.setAttribValue('Cd2', color)
+                    v.setAttribValue('material_type2', mat_type)
                     if static_color:
                         v.setAttribValue('color_mode', 1)
             else:
@@ -141,8 +143,6 @@ class ldrawPart:
                 color_code = color_group
                 color = self.color_dict[color_group]['rgb']
                 mat_type = ldraw.material_group().index(self.color_dict[color_code]["category"])
-                if mat_type != 0:
-                    self.compound_part = 1
                 static_color = True
         else:
             # if x in color it's a direct color that looks like this: 0x2995220
@@ -355,11 +355,6 @@ class ldrawPart:
 
         part_path = self.path_resolve(self.parm_part + '.dat')
         part_geo = self.read_part(part_path, hou.hmath.identityTransform(), 'CCW', '16', 'base', stud_processing)
-
-        # if we pack, we can't have the material attribute here, as it needs to be a point attribute set in brickini_material
-        # however, for compound attributes we keep it and the compound materials have to be controlled in ldraw_part directly
-        if self.parm_pack == 1 and self.compound_part == 0:
-            self.mat_attribute.destroy()
     
         # adjust for houdini coord system
         transform_dict = dict()

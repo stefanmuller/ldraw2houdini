@@ -66,7 +66,7 @@ def reload_brickini_nodes():
             part_parm = n.parm('part')
             part_number = part_parm.eval()
             part_parm.set(part_number)
-            print('reloading {}'.format(n))
+            # print('reloading {}'.format(n))
 
         elif node_type == 'brickini_material':
             mat_parms = []
@@ -80,9 +80,9 @@ def reload_brickini_nodes():
             material_parm = mat_parms[material_group+1]
             material = material_parm.eval()
             material_parm.set(material)
-            print('reloading {}'.format(n))
+            # print('reloading {}'.format(n))
 
         elif node_type == 'brickini_ldraw_model':
             part_parm = n.parm('reload')
             part_parm.pressButton()
-            print('reloading {}'.format(n))
+            # print('reloading {}'.format(n))

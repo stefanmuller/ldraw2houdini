@@ -271,6 +271,7 @@ def build_ldr_model(file, geo_node):
     return(t_list_master)
 
 def build_model_points(geo, file):
+    file_type = file.suffix
     geo.addAttrib(hou.attribType.Point, "type", "")
     geo.addAttrib(hou.attribType.Point, "part", "")
     geo.addAttrib(hou.attribType.Point, "Cd", hou.Vector3(1.0, 1.0, 1.0))
@@ -291,6 +292,10 @@ def build_model_points(geo, file):
             match = re.search(pattern, line)
             if match:
                 model_name = match.group(1).lower().strip()
+
+            # we only look for file references inside subcomponents in mpd files.
+            if file_type == '.mpd' and 'ldr' not in model_name:
+                continue
 
             if line[0] == '1':
                 part = ' '.join(lineparts[14:])
@@ -356,7 +361,7 @@ def main():
     model_master_name = file.stem
     model_master_name = strip_special_characters(model_master_name)
     model_master_name = 'brickini_ldraw_model_{}'.format(model_master_name)
-    print('building {} ...'.format(model_master_name))
+    # print('building {} ...'.format(model_master_name))
 
     # depending on suffix either process as mpd (multi part document) or ldr
     file_type = file.suffix
@@ -385,7 +390,8 @@ def main():
 
         # build model
         t_list_master = build_ldr_model(file, geo_node)
-
+    elif file == '':
+        return
     else:
         hou.ui.displayMessage('Please choose one of the following file types: ldr, l3b or mpd', buttons=('OK',), severity=hou.severityType.Error, default_choice=0, close_choice=-1, title='Wrong File Type', )
         return
