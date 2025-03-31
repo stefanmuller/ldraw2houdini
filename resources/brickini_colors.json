@@ -1,4 +1,15 @@
-{
+{    
+    "0": {
+        "category": "Solid",
+        "name": "Black",
+        "status": "current",
+        "note": "converted to acescg from BL Hex and tweaked manually",
+        "rgb": [
+            0.013209839605235316,
+            0.014208056891572732,
+            0.015207718001287158
+        ]
+    },
     "14": {
         "category": "Solid",
         "name": "Yellow",

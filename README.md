@@ -26,7 +26,7 @@ Source individual parts or import entire models with one-button shelf tools!
 - **ACES colorspace:** LDraw colors are converted to acescg
 
 ## Requirements
-- Houdini 20 (Py 3.10)
+- Houdini 20.5 (Py 3.11) - Older versions *might* work, see [Optional Step 8.](#optional_id)
 - SideFX Labs for auto uv feature
 - OCIO ACES colorspace configuration for Houdini
 
@@ -52,8 +52,9 @@ Source individual parts or import entire models with one-button shelf tools!
 
 7. Launch Houdini - Happy ldrawing!
 
+<a id="optional_id"></a>
 ### Optional Steps
-8. Make sure you have Houdini 20 with **Python 3.10** installed. If you are running 3.9 you have to rename the **python3.10libs** folder to **python3.9libs**
+8. Make sure you have **Houdini 20.5 Python 3.11** installed. If you are running older versions of Houdini and/or Python you have to rename the **python3.11libs** folder accordingly. I.e. if your Houdini Python version is 3.9 rename it to  **python3.9libs** 
 
 9. If you placed anything in different paths, adjust **ldraw2houdini.json** accordingly.
     - LDRAW2HOUDINI needs to point to the path of this plugin

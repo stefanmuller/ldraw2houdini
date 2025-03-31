@@ -2,10 +2,12 @@
     "0": {
         "category": "Solid",
         "name": "Black",
+        "status": "current",
+        "note": "converted to acescg from BL Hex and tweaked manually",
         "rgb": [
-            0.016209717180828465,
-            0.022448098647465272,
-            0.03263092558177869
+            0.013209839605235316,
+            0.014208056891572732,
+            0.015207718001287158
         ]
     },
     "1": {
@@ -365,7 +367,7 @@
     },
     "86": {
         "category": "Solid",
-        "name": "Medium_Brown",
+        "name": "Light_Brown",
         "rgb": [
             0.16111561101955146,
             0.11491060088158868,
@@ -671,7 +673,7 @@
     },
     "368": {
         "category": "Solid",
-        "name": "Vibrant_Yellow",
+        "name": "Neon_Yellow",
         "rgb": [
             0.8595045891987486,
             0.9759850500141493,
@@ -685,6 +687,15 @@
             0.14581039766862425,
             0.10482142817780908,
             0.06637067246886288
+        ]
+    },
+    "371": {
+        "category": "Solid",
+        "name": "Medium_Tan",
+        "rgb": [
+            0.5027119691327443,
+            0.3802808475765845,
+            0.2016803287917115
         ]
     },
     "373": {
@@ -779,7 +790,7 @@
     },
     "510": {
         "category": "Solid",
-        "name": "Fabuland_Pastel_Green",
+        "name": "Fabuland_Lime",
         "rgb": [
             0.4545865279591161,
             0.9077567254462972,
@@ -1101,7 +1112,7 @@
     },
     "83": {
         "category": "Pearlescent Plastic",
-        "name": "Metallic_Black",
+        "name": "Pearl_Black",
         "rgb": [
             0.005034141360980158,
             0.006453399513376044,
@@ -1144,6 +1155,15 @@
             0.175809582444598
         ]
     },
+    "147": {
+        "category": "Pearlescent Plastic",
+        "name": "Pearl_Dark_Gold",
+        "rgb": [
+            0.20000138329997383,
+            0.1711686519491295,
+            0.09111702138068757
+        ]
+    },
     "148": {
         "category": "Pearlescent Plastic",
         "name": "Pearl_Dark_Grey",
@@ -1162,18 +1182,27 @@
             0.31944777489228915
         ]
     },
+    "176": {
+        "category": "Pearlescent Plastic",
+        "name": "Pearl_Red",
+        "rgb": [
+            0.2125828392503157,
+            0.09704159562388154,
+            0.07147782118819951
+        ]
+    },
     "178": {
         "category": "Pearlescent Plastic",
-        "name": "Flat_Dark_Gold",
+        "name": "Pearl_Yellow",
         "rgb": [
-            0.20000138329997383,
-            0.1711686519491295,
-            0.09111702138068757
+            0.2977511165423604,
+            0.1534201916945051,
+            0.06004793338956359
         ]
     },
     "179": {
         "category": "Pearlescent Plastic",
-        "name": "Flat_Silver",
+        "name": "Pearl_Silver",
         "rgb": [
             0.2473178601603957,
             0.24287894755368725,

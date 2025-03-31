@@ -1,3 +1,4 @@
+# pyright: reportMissingImports=false
 import hou
 
 def find_hdas(filter_string):

@@ -5,7 +5,7 @@ import json
 resources = Path(__file__).resolve().parent.parent / 'resources' 
 ld_colors = resources / 'ld_colors.json'
 brickini_colors = resources / 'brickini_colors.json'
-ldconfig = '/home/stefan/ldraw/LDConfig.ldr'
+ldconfig = 'C:/Users/hello/ldraw/LDConfig.ldr'
 
 def hex_to_acescg(hex_value):
     # Convert hex to float rgb
