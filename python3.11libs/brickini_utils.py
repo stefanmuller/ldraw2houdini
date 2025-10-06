@@ -32,21 +32,23 @@ def highest_version(hdas):
     return hda_dict
 
 def update_hdas(hda_dict, filter_string):
-    ''' Update all hdas to the latest definition'''  
-    for nodes in hou.node("/obj").children():
-        for n in nodes.children():
+    ''' Update all hdas to the latest definition'''
+    all_nodes = hou.node("/").allSubChildren()
+    for n in all_nodes:
+        try:
             node_type = n.type().nameComponents()[2]
-            if filter_string in node_type:
-                if node_type in hda_dict:
-                    matched_item = hda_dict[node_type].nodeTypeName()
-                    n.changeNodeType(matched_item, keep_network_contents=False)
+        except Exception:
+            continue
+        if filter_string in node_type:
+            if node_type in hda_dict:
+                matched_item = hda_dict[node_type].nodeTypeName()
+                n.changeNodeType(matched_item, keep_network_contents=False)
 
 def upgrade_brickini_hdas():
     filter_string = 'brickini'
     hdas = find_hdas(filter_string)
     hda_dict = highest_version(hdas)
     update_hdas(hda_dict, filter_string)
-
 
 def reload_brickini_nodes():
     '''
@@ -60,6 +62,9 @@ def reload_brickini_nodes():
         if node_type == 'geo':
             nodelist.remove(n)
             nodelist.extend(n.children())
+        elif node_type == 'brickini_ldraw_lop':
+            geo_node = hou.node(n.path() + '/sopcreate1/sopnet/create')
+            nodelist.extend(geo_node.children())
 
     for n in nodelist:
         node_type = n.type().nameComponents()[2]       
@@ -87,3 +92,48 @@ def reload_brickini_nodes():
             part_parm = n.parm('reload')
             part_parm.pressButton()
             # print('reloading {}'.format(n))
+
+def cam_auto_frame():
+    from pxr import Sdf, UsdGeom
+    import math
+
+    node = hou.pwd()
+    padding = node.parm('padding').eval()
+    camera_path = node.parm('camera_path').eval()
+    scene_path = node.parm('scene_path').eval()
+
+    stage = node.editableStage()
+
+    prim = stage.GetPrimAtPath(scene_path)
+    if not prim or not prim.IsValid():
+        return
+
+    bbox_cache = UsdGeom.BBoxCache(0, ['default'])
+    bbox = bbox_cache.ComputeWorldBound(prim)
+    bounds = bbox.ComputeAlignedBox()
+    size = bounds.GetSize()  # (width, height, depth)
+
+    cam = stage.GetPrimAtPath(camera_path)
+    haperture = cam.GetAttribute("horizontalAperture").Get()  # mm
+    vaperture = cam.GetAttribute("verticalAperture").Get()    # mm
+    focal = cam.GetAttribute("focalLength").Get()             # mm
+
+    # Compute FOVs in radians
+    h_fov = 2 * math.atan((haperture / 2) / focal)
+    v_fov = 2 * math.atan((vaperture / 2) / focal)
+
+    # Add padding to size (as absolute value)
+    width = size[0] + padding
+    height = size[1] + padding
+
+    # Calculate required distances for both axes
+    dist_h = (width / 2) / math.tan(h_fov / 2)
+    dist_v = (height / 2) / math.tan(v_fov / 2)
+
+    # Use the larger distance to ensure full framing
+    dist = max(dist_h, dist_v) + size[2] / 2
+
+    # Center the camera vertically on the object
+    cam.CreateAttribute("xformOp:translate", Sdf.ValueTypeNames.Float3).Set((0, size[1]/2, dist))
+    cam.GetAttribute("xformOpOrder").Set(["xformOp:translate"])
+    cam.GetAttribute("focusDistance").Set(dist)

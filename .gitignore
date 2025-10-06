@@ -1,6 +1,11 @@
 __pycache__/
 backup/
+bak/
 .vscode/
 render/
 galleries/
+geo/
+usd/
 *~
+python3.10libs/
+*.rat

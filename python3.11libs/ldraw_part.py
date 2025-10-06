@@ -3,11 +3,15 @@ from pathlib import Path, PureWindowsPath
 import ldraw
 import hou
 import re
+import importlib
+
+importlib.reload(ldraw)
 
 class ldrawPart:
     def __init__(self, node, parms):
         self.ldraw_lib = ldraw.ldraw_lib()
         self.color_dict = ldraw.color_lib()
+        self.material_groups = ldraw.material_group()
         self.default_color = hou.Vector3(1, 1, 1)
 
         # python sop
@@ -16,6 +20,7 @@ class ldrawPart:
         # store all the parms
         self.parm_part = parms.get('parm_part')
         self.parm_highres = parms.get('parm_highres')
+        self.parm_logo = parms.get('parm_logo')
         self.parm_stud = parms.get('parm_stud')
         self.parm_pack = parms.get('parm_pack')
         self.parm_print = parms.get('parm_print')
@@ -26,6 +31,14 @@ class ldrawPart:
         # store this geo
         self.geo = self.node.geometry()
 
+        # attr names
+        self.col_attr = 'Cd'
+        self.mat_attr = 'material_type'
+
+        if self.parm_pack:
+            self.col_attr = self.col_attr + '2'
+            self.mat_attr = self.mat_attr + '2'
+
         # write attributes
         self.geo.addArrayAttrib(hou.attribType.Global, 'part_color', hou.attribData.Float)
         self.geo.setGlobalAttribValue('part_color', self.color_dict[str(self.parm_material)]['rgb'])
@@ -33,22 +46,15 @@ class ldrawPart:
         self.geo.addAttrib(hou.attribType.Global, 'name', '')
         self.geo.setGlobalAttribValue('name', 'p_' + self.parm_part)
 
-        texture_path = self.ldraw_lib / 'textures' / str(self.parm_part + '_basecolor.png')
+        self.geo.addAttrib(hou.attribType.Global, 'description', '')
+
+        self.texture_path = self.ldraw_lib / 'textures' / str(self.parm_part + '_basecolor.png')
 
         if self.parm_print == 2:
             self.geo.addAttrib(hou.attribType.Global, 'print', '')
-            self.geo.setGlobalAttribValue('print', str(texture_path))
+            self.geo.setGlobalAttribValue('print', str(self.texture_path))
 
-        if not self.parm_pack:
-            self.geo.addAttrib(hou.attribType.Vertex, 'Cd', self.default_color)
-            self.geo.addAttrib(hou.attribType.Vertex, 'material_type', self.parm_material_group)
-        else:
-            self.geo.addAttrib(hou.attribType.Vertex, 'Cd2', self.default_color)
-            self.geo.addAttrib(hou.attribType.Vertex, 'material_type2', self.parm_material_group)
-            self.geo.addAttrib(hou.attribType.Vertex, 'color_mode', 0)
-
-        self.geo.addAttrib(hou.attribType.Point, 'info', '')
-        self.geo.addAttrib(hou.attribType.Vertex, 'color_code', 0)
+        self.subpart_cache = {}
 
     def extract_points(self, line, vertnum, winding):
         '''extract the vert positions and put them into the correct winding order'''
@@ -67,41 +73,77 @@ class ldrawPart:
 
         return points
 
-    def create_poly(self, points, m4, color, static_color, color_code, info, mat_type):
-        '''create geometry and write info and color attributes'''
-        poly = self.geo.createPolygon()
+    def create_lines(self, points, line_geo):
+        '''create lines from points'''
+        poly = line_geo.createPolygon()
         for position in points:
-            point = self.geo.createPoint()
+            point = line_geo.createPoint()
             point.setPosition(position)
-            v = poly.addVertex(point)
+            poly.addVertex(point)
+            poly.setIsClosed(False)
 
-            if len(points) > 2:
-                v.setAttribValue('color_code', int(color_code))
+        return line_geo
 
-                point.setAttribValue('info', info)
+    def create_polys(self, polys_data, part_geo):
+        '''
+        Batch create polygons and set attributes in bulk.
+        polys_data: list of dicts with keys: points, color, static_color, color_code, info, mat_type
+        '''
+        # Collect all data
+        all_points = []
+        polygons_indices = []
+        color_codes = []
+        infos = []
+        colors = []
+        mat_types = []
+        color_modes = []
 
-                if not self.parm_pack:
-                    v.setAttribValue('Cd', color)
-                    v.setAttribValue('material_type', mat_type)
-                else:
-                    v.setAttribValue('Cd2', color)
-                    v.setAttribValue('material_type2', mat_type)
-                    if static_color:
-                        v.setAttribValue('color_mode', 1)
+        for poly in polys_data:
+            start_idx = len(all_points)
+            all_points.extend(poly['points'])
+            polygons_indices.append(tuple(range(start_idx, start_idx + len(poly['points'])))
+            )
+            color_codes.append(int(poly['color_code']))
+            infos.append(poly['info'])
+            if not self.parm_pack:
+                colors.append(poly['color'])
+                mat_types.append(poly['mat_type'])
             else:
-                poly.setIsClosed(False)
+                colors.append(poly['color'])
+                mat_types.append(poly['mat_type'])
+                color_modes.append(1 if poly['static_color'] else 0)
 
-        self.geo.transformPrims([poly], m4)
-        return poly
+        # Create all points
+        point_objs = part_geo.createPoints(all_points)
 
-    def determine_winding(self, winding_group, m4_group, invert_next):
+        # Create polygons using tuples of point objects
+        polygons = []
+        for poly_indices in polygons_indices:
+            polygons.append(tuple(point_objs[idx] for idx in poly_indices))
+        part_geo.createPolygons(polygons)
+
+        # Flatten colors
+        flat_colors = [f for c in colors for f in c]
+
+        # Set attributes in bulk
+        part_geo.setPrimIntAttribValues('color_code', color_codes)
+        part_geo.setPrimStringAttribValues('info', infos)
+        part_geo.setPrimFloatAttribValues(self.col_attr, flat_colors)
+        part_geo.setPrimIntAttribValues(self.mat_attr, mat_types)
+        
+        if  self.parm_pack:
+            part_geo.setPrimIntAttribValues('color_mode', color_modes)
+
+        return part_geo
+
+    def determine_winding(self, winding_group, m4, invert_next):
         '''
         this function determines winding order
         invert winding again if orientation matrix is reversed (negative determinant)
         cancel out inversion if INVERTNEXT statement is found before subpart reference
         '''
-        m4_group_det = m4_group.determinant()
-        if m4_group_det < 0:
+        m4_det = m4.determinant()
+        if m4_det < 0:
             if winding_group == 'CCW':
                 winding_group = 'CW'
             else:
@@ -113,119 +155,106 @@ class ldrawPart:
             else:
                 winding_group = 'CCW'
         return winding_group
-
-    def hex_to_rgb(self, hex_value):
-        # Convert hex to decimal RGB values
-        decimal_r = int(hex_value[0:2], 16)
-        decimal_g = int(hex_value[2:4], 16)
-        decimal_b = int(hex_value[4:6], 16)
-
-        # Convert decimal RGB to float
-        float_r = (decimal_r / 255) ** 2.2
-        float_g = (decimal_g / 255) ** 2.2
-        float_b = (decimal_b / 255) ** 2.2
-
-        # Return as list
-        return [float_r, float_g, float_b]
-
-    def get_color(self, color, color_group):
+    
+    def get_color(self, color_code):
         '''
         get color from ld color json
         16 is a special code, the color is determined by the referenced dat file
         '''
-        static_color = False
-        color_code = '16'
+        static_color = True
         mat_type = self.parm_material_group
-        if color == '16':
-            if color_group == '16':
-                color = self.color_dict[str(self.parm_material)]['rgb']
-            else:
-                color_code = color_group
-                color = self.color_dict[color_group]['rgb']
-                mat_type = ldraw.material_group().index(self.color_dict[color_code]["category"])
-                static_color = True
+        color = hou.Vector3(1, 0, 0.5)
+
+        if color_code == '16':
+            color = self.color_dict[str(self.parm_material)]['rgb']
+            static_color = False
         else:
             # if x in color it's a direct color that looks like this: 0x2995220
             # and we need to convert it manually
-            if 'x' in color:
-                color = self.hex_to_rgb(color[3:8])
-                color_code = 0
-                static_color = True
+            if 'x' in color_code:
+                color = ldraw.hex_to_acescg(color_code[3:9])
+                color_code = '0'
             else:
                 try:
-                    color_code = color
-                    color = self.color_dict[color]['rgb']
-                    static_color = True
+                    color = self.color_dict[color_code]['rgb']
+                    mat_type = self.material_groups.index(self.color_dict[color_code]['category'])
                 except:
-                    color = hou.Vector3(1, 0, 0.5)
+                    pass
+
         return color, static_color, color_code, mat_type
 
     def path_resolve(self, part):
         '''
-        find part in ldraw lib, this turned a bit into a beast, because the file format specifications
-        aren't very strict. This function could probably be much more elegant.    
+        Efficiently find part in ldraw lib.
         '''
-        part = PureWindowsPath(part)
-        part = Path(part)
-        part = str(part)
-        part_lower = str(part).lower()
-        part = part.replace(' ','')
+        # Normalize part name
+        part = str(PureWindowsPath(part)).replace(' ', '')
+        part_lower = part.lower()
 
-        # creating a list, with the part as it's written in the file and fully lowercase
-        part_list=(part_lower, part)
+        # Try both original and lowercase
+        part_names = [part, part_lower]
 
-        # looping over the list, first trying to find the part as is
-        # if unsuccesful, we try again fully lowercase
-        for p in part_list:
-            part_dir = ldraw.p / p
+        # List of (directory, highres_directory) tuples to search
+        search_paths = [
+            (ldraw.p, None),
+            (ldraw.ps, None),
+            (ldraw.pr, ldraw.pr48),
+            (ldraw.p_u, None),
+            (ldraw.ps_u, None),
+            (ldraw.pr_u, ldraw.pr48_u),
+            (ldraw.pr_l2h, None),
+        ]
 
-            if not part_dir.exists():
-                part_dir = ldraw.ps / p
-                if not part_dir.exists():
-                    part_dir = ldraw.pr / p
-                    if part_dir.exists():
-                        if self.parm_highres:
-                            highres_part = ldraw.pr48 / p
-                            if  highres_part.exists():
-                                part_dir = highres_part
-                    else:
-                        part_dir = ldraw.p_u / p
-                        if not part_dir.exists():
-                            part_dir = ldraw.ps_u / p
-                            if not part_dir.exists():
-                                part_dir = ldraw.pr_u / p
-                                if part_dir.exists():
-                                    if self.parm_highres:
-                                        highres_part = ldraw.pr48_u / p
-                                        if  highres_part.exists():
-                                            part_dir = highres_part
-                                else:
-                                    part_dir = ldraw.pr_l2h / p
+        for name in part_names:
+            for base_dir, highres_dir in search_paths:
+                part_dir = base_dir / name
+                if part_dir.exists():
+                    # Check for highres override if requested
+                    if self.parm_highres and highres_dir is not None:
+                        highres_part = highres_dir / name
+                        if highres_part.exists():
+                            return highres_part
+                    return part_dir
 
-            if part_dir.exists():
-                # if we found the part, break, otherwise we try again with everything lowercase
-                break
+        # Fallback if not found
+        return ldraw.pr_l2h / 'box-part-not-found.dat'
 
-        if not part_dir.exists():
-            part_dir = ldraw.pr_l2h / 'box-part-not-found.dat'
-
-        return part_dir
-
-    def read_part(self, part, m4, winding, color_code, info, stud_processing):
+    def read_part(self, part, winding, color_code, info, stud_processing):
         '''
         recursive function that reads the part and then either creates
         lines, tris, quads or reads subparts inside the part
+        subparts are stored in a dict and then reused for all remaining instances
         '''
         if not part.exists():
             return
 
         with open(part) as f:
-            poly_list=[]
             invert_next = False
             winding_sub = winding
-            color_group = color_code
             info_group = info
+            color_group = color_code
             static_color = False
+
+            part_geo = hou.Geometry()
+            temp_geo = hou.Geometry()
+            temp_geo2 = hou.Geometry()
+            line_geo = hou.Geometry()
+
+            if self.parm_pack:
+                part_geo.addAttrib(hou.attribType.Prim, 'color_mode', 0)
+
+            part_geo.addAttrib(hou.attribType.Prim, self.col_attr, self.default_color)
+            part_geo.addAttrib(hou.attribType.Prim, self.mat_attr, self.parm_material_group)
+            part_geo.addAttrib(hou.attribType.Prim, 'info', '')
+            part_geo.addAttrib(hou.attribType.Prim, 'color_code', 0)
+
+            # write description from first line if it matches the part number
+            if self.parm_part == part.stem:
+                description = f.readline().split(' ', 1)[-1].replace(' ', '_').strip()
+                self.geo.setGlobalAttribValue('description', description)
+
+            # Collect polygon data for batch creation
+            polys_data = []
 
             for line in f:
                 line = line.split()
@@ -254,6 +283,12 @@ class ldrawPart:
                     elif line[1] == 'BFC' and line[2] == 'INVERTNEXT':
                         invert_next = True
 
+                    # check for deactivated logo line, swap to logo4.dat (best looking one) and activate the line
+                    if self.parm_logo == 1:
+                        if 'logo' in line[-1]:
+                            line = line[2:]
+                            line[-1] = 'logo4.dat'
+
                 # part/prim reference
                 if line[0] == '1':
                     part = ' '.join(line[14:])
@@ -266,16 +301,18 @@ class ldrawPart:
                     if self.parm_stud:
                         if part == 'stud.dat':
                             part = 'stud-instance.dat'
-                            info_group = 'stud'
+                            # part = 'stud-logo4.dat'
+                            info_group = 'stud-instance'
                         elif part == 'stud2.dat':
                             part = 'stud-instance.dat'
-                            info_group = 'stud2'
+                            # part = 'stud2-logo4.dat'
+                            info_group = 'stud2-instance'
                         elif 'stud' in part:
-                            info_group = 'studX'
+                            info_group = 'stud'
                         else:
                             info_group = info
 
-                    if part == 'logo4.dat':
+                    if 'logo' in part:
                         info_group = 'logo'
 
                     # we only process edges if checked.
@@ -288,47 +325,115 @@ class ldrawPart:
                     # to allow group colors penetrating through sub files
                     if color_code == '16':
                         color_code = color_group
+  
+                    m4 = ldraw.get_matrix(line)
 
-                    part = self.path_resolve(part)
-
-                    if not part.exists():
-                        break
-
-                    m4_group = ldraw.get_matrix(line)
-
-                    winding_group = self.determine_winding(winding_group, m4_group, invert_next)
+                    winding_group = self.determine_winding(winding_group, m4, invert_next)
                     invert_next = False
 
-                    poly_list_sub = self.read_part(part, m4_group, winding_group, color_code, info_group, stud_processing)
-                    self.geo.transformPrims(poly_list_sub, m4)
-                    poly_list.extend(poly_list_sub)
+                    # Adding the winding_group to the part name means we are potentially storing 2 versions of any given subpart.
+                    # This feels somewhat dumb, but since there is no 'flip vertex order function', there isn't really any smarter alternative I can think of.
+                    part_name = '{}_{}'.format(part, winding_group)
+
+                    # check if subpart was already built and store in temp_geo
+                    if part_name in self.subpart_cache:
+                        if info_group != 'print' or (info_group == 'print' and (color_code != '16' or 16 not in self.subpart_cache[part_name].primIntAttribValues('color_code'))):
+                            temp_geo.copyPrims(self.subpart_cache[part_name])
+                        else:
+                            continue
+                    else:
+                        part = self.path_resolve(part)
+                        
+                        part_geo_group = self.read_part(part, winding_group, color_code, info_group, stud_processing)
+                        #store subpart
+                        if len(part_geo_group.prims()) > 0:
+                            self.subpart_cache[part_name]=part_geo_group                        
+                        temp_geo.copyPrims(part_geo_group)
+
+                    color, static_color, color_code, mat_type = self.get_color(line[1])
+                    
+                    # the following sets the correct attributes based on parent parts/subparts
+                    # it's waaay faster to use primXAttribValues on the geo rather than looping over the prims and setting values directly
+                    color_codes = temp_geo.primIntAttribValues('color_code')
+                    colors = temp_geo.primFloatAttribValues(self.col_attr)
+                    mat_types = temp_geo.primIntAttribValues(self.mat_attr)
+                    infos = temp_geo.primStringAttribValues('info')
+
+                    new_color_codes = list(color_codes)
+                    new_colors = list(colors)
+                    new_mat_types = list(mat_types)
+                    new_infos = list(infos)
+                    new_color_modes = list()
+
+                    if self.parm_pack:
+                        color_modes = temp_geo.primIntAttribValues('color_mode')
+                        new_color_modes = list(color_modes)
+
+                    for i, code in enumerate(color_codes):
+                        if code == 16:
+                            s = i * 3
+                            new_colors[s:s+3] = color
+                            new_color_codes[i] = int(color_code)
+                            new_mat_types[i] = mat_type
+                            if infos[i] == '':
+                                new_infos[i] = info_group
+                            if static_color and self.parm_pack:
+                                new_color_modes[i] = 1
+
+                    # Write back in bulk
+                    temp_geo.setPrimFloatAttribValues(self.col_attr, new_colors)
+                    temp_geo.setPrimIntAttribValues('color_code', new_color_codes)
+                    temp_geo.setPrimIntAttribValues(self.mat_attr, new_mat_types)
+                    temp_geo.setPrimStringAttribValues('info', new_infos)
+                    if self.parm_pack:
+                        temp_geo.setPrimIntAttribValues('color_mode', new_color_modes)
+
+                    temp_geo.transform(m4)                    
+                    temp_geo2.mergePrims(temp_geo)
 
                 # tri
                 elif line[0] == '3':
-                    color, static_color, color_code, mat_type = self.get_color(line[1], color_group)
+                    color, static_color, color_code, mat_type = self.get_color(line[1])
                     points = self.extract_points(line, 3, winding_sub)
-                    if info != 'print' or (info == 'print' and color_code != '16'):
-                        poly = self.create_poly(points, m4, color, static_color, color_code, info, mat_type)
-                        poly_list.append(poly)
+                    if info != 'print' or (info == 'print' and (color_code != '16' or color_group != '16')):
+                        polys_data.append({
+                            'points': points,
+                            'color': color,
+                            'static_color': static_color,
+                            'color_code': color_code,
+                            'info': info,
+                            'mat_type': mat_type
+                        })
 
                 # quad
                 elif line[0] == '4':
-                    color, static_color, color_code, mat_type = self.get_color(line[1], color_group)
+                    color, static_color, color_code, mat_type = self.get_color(line[1])
                     points = self.extract_points(line, 4, winding_sub)
-                    if info != 'print' or (info == 'print' and color_code != '16'):
-                        poly = self.create_poly(points, m4, color, static_color, color_code, info, mat_type)
-                        poly_list.append(poly)
+                    if info != 'print' or (info == 'print' and (color_code != '16' or color_group != '16')):
+                        polys_data.append({
+                            'points': points,
+                            'color': color,
+                            'static_color': static_color,
+                            'color_code': color_code,
+                            'info': info,
+                            'mat_type': mat_type
+                        })
 
                 # lines
-                if self.parm_edges and info == 'base':            
+                if self.parm_edges and info == 'base':
                     if line[0] == '2':
                         color = [0,0,0]
                         static_color = False
                         points = self.extract_points(line, 2, winding_sub)
-                        poly = self.create_poly(points, m4, color, static_color, color_code, '', 0)
-                        poly_list.append(poly)
+                        line_geo = self.create_lines(points, line_geo)
 
-        return poly_list
+            # Batch create polygons and set attributes
+            if polys_data:
+                part_geo = self.create_polys(polys_data, part_geo)
+
+            part_geo.mergePrims(temp_geo2)
+            part_geo.mergePrims(line_geo)
+        return part_geo
 
     def __call__(self):
         # print handling
@@ -336,35 +441,34 @@ class ldrawPart:
         # load base brick if mode is set to separate and only keep print geo from actual brick
         # load base brick if mode is set to texture and we create uvs in the hda
 
+        m4_ldu = ldraw.xform_to_houdini()
+
         base_part = self.parm_part
         print_str = re.search('[pP].*', self.parm_part)
+        composite_str = re.search('[cC].*', self.parm_part)
         stud_processing = 1
 
         if print_str != None:
             print_str = print_str.group()
             base_part = self.parm_part.replace(print_str, '')
-            base_part = re.sub('\d+-', '', base_part) # remove model string from unofficial mpd part files
+            base_part = re.sub(r'\d+-', '', base_part) # remove model string from unofficial mpd part files
 
-        if self.parm_print > 0 and print_str != None:
+        # if part is a composite we won't apply separation since base composite part might not exist
+        if self.parm_print > 0 and print_str != None and composite_str == None:
             if self.parm_print == 1:
                 part_path = self.path_resolve(self.parm_part + '.dat')
-                part_geo_print = self.read_part(part_path, hou.hmath.identityTransform(), 'CCW', '16', 'print', 1)
+                part_geo_print = self.read_part(part_path, 'CCW', '16', 'print', 1)
                 stud_processing = 0
+                part_geo_print.transform(m4_ldu)
+                self.geo.mergePrims(part_geo_print)
+                # clear subpart cache so printed areas don't conflict with non printed ones
+                self.subpart_cache.clear()
 
             self.parm_part = base_part
 
         part_path = self.path_resolve(self.parm_part + '.dat')
-        part_geo = self.read_part(part_path, hou.hmath.identityTransform(), 'CCW', '16', 'base', stud_processing)
+        part_geo_base = self.read_part(part_path, 'CCW', '16', 'base', stud_processing)
     
-        # adjust for houdini coord system
-        transform_dict = dict()
-        transform_dict['rotate'] = (180, 0, 0)
-        transform_dict['scale'] = (0.004, 0.004, 0.004)
-        m4_part = hou.hmath.buildTransform(transform_dict, transform_order='srt', rotate_order='xyz')
-
-        try:
-            part_geo.extend(part_geo_print)
-        except:
-            pass
-
-        self.geo.transformPrims(part_geo, m4_part)
+        # transform and add to main geo object
+        part_geo_base.transform(m4_ldu)
+        self.geo.mergePrims(part_geo_base)

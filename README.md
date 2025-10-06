@@ -22,11 +22,11 @@ Source individual parts or import entire models with one-button shelf tools!
 - **Auto generate textures for prints/stickers** for modern cg workflows
 - **Auto uvs**
 - **Material properties:** simple config file to define softness, graininess and roughness for individual parts
-- **Solaris + Karma example scene** contains MaterialX shader showcasing how to create high quality renderings
+- **Solaris + Karma template scene** contains MaterialX shader showcasing how to create high quality renderings
 - **ACES colorspace:** LDraw colors are converted to acescg
 
 ## Requirements
-- Houdini 20.5 (Py 3.11) - Other versions *might* work, see [Optional Step 8.](#optional_id)
+- Houdini 21 (Py 3.11) - Other versions *might* work, see [Optional Step 8.](#optional_id)
 - SideFX Labs for auto uv feature
 - OCIO ACES colorspace configuration for Houdini
 
@@ -95,11 +95,23 @@ Source individual parts or import entire models with one-button shelf tools!
 2. Click **LDraw Model** or **LDraw Model Dynamic**
 3. Choose an LDraw model file
 4. Prints won't show up in the viewport, if bricks are packed (default) but are supported when rendering with Karma/Solaris
-5. Example scene with Karma material can be found here:
 
-        ldraw2houdini/resources/example_files/example_scene.hiplc
+### Render with Solaris and Karma
 
-![boutique hotel](/resources/help/brickini_ldraw_model.jpg)
+1. Open template scene:
+
+        ldraw2houdini/resources/template.hiplc
+
+2. Browse for LDraw model file in **Brickini LDraw Lop**
+3. Click **Build**
+4. Render!
+
+![lagoon lockup](/resources/help/brickini_ldraw_model.jpg)
+
+## Brickini
+![island landscape generated with brickini](/resources/help/brickini_splash.jpg)
+
+**Brickini Brickify** let's you generate vast and detailed landscapes entirely out of bricks in Houdini. **LDraw2Houdini** works quite well together with Brickini. [Surf to the Brickini Tools website to find out more!](https://brickini-tools.com/)
 
 ## Contributions
 - LDraw Model HDA (Dynamic mode): Kai Stavginski
@@ -107,10 +119,10 @@ Source individual parts or import entire models with one-button shelf tools!
 
 ## Resources
 
-- [LDraw Official Model Repository](https://library.ldraw.org/omr)  
+- [LDraw Official Model Repository](https://library.ldraw.org/omr) (There are many more models in the forums)
 - Official sets made in LDraw
 [Eurobricks Thread](https://www.eurobricks.com/forum/index.php?/forums/topic/48285-key-topic-official-lego-sets-made-in-ldraw/)
 
 ## If you like this and want to support me
 
-You can buy me a coffee :) [Buy Me a Coffee](https://www.buymeacoffee.com/stefanmuller)
+- [Buy Me a Coffee](https://www.buymeacoffee.com/stefanmuller) :)
