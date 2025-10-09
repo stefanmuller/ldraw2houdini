@@ -12,6 +12,7 @@
 - Added subd group to automatically tag parts as subdivision surfaces in Solaris
 - Skip print separation if part is a composite. To support this properly we would have to search for base composites and if they don't exist, use the base dat in the file itself and apply transform
 - Fixed direct color parsing and added acescg conversion
+- Round parts like 3941 that have disabled logo lines are now processed when the logo option is enabled
 
 #### Brickini Imperfections
 - Fixed random number generation
@@ -45,6 +46,8 @@
 #### Known Issues/Limitations
 - Textures can't be baked when in lops. One needs to create the part in SOPs, switch it to texture, and afterwards it should render in Karma when texture mode is used
 - ld_colors.json is outdated. There are tons of new colors in LDConfig. However I need to update the LDraw Part menu to support this. Kind of annoying. Need to see if I can future proof this somehow.
+- Print handling set to texture breaks parts that don't have any. Ideally this setting is ignored and falls back to seperate behind the scenes
+- Texture mode not fully supported for baseplates. Studs don't receive correct colors
 
 
 ## Banana v3.0.0

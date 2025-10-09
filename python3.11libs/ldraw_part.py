@@ -294,20 +294,18 @@ class ldrawPart:
                     part = ' '.join(line[14:])
 
                     # if separate mode we don't process studs from base part, but only from the printed one
-                    if stud_processing == 0 and 'stud' in part:
+                    if stud_processing == 0 and 'stu' in part:
                         continue
 
                     # load special stud-instance which is just a helper prim to be able to instance the actual stud geo in the hda network
                     if self.parm_stud:
                         if part == 'stud.dat':
                             part = 'stud-instance.dat'
-                            # part = 'stud-logo4.dat'
                             info_group = 'stud-instance'
                         elif part == 'stud2.dat':
                             part = 'stud-instance.dat'
-                            # part = 'stud2-logo4.dat'
                             info_group = 'stud2-instance'
-                        elif 'stud' in part:
+                        elif 'stu' in part:
                             info_group = 'stud'
                         else:
                             info_group = info
@@ -337,7 +335,7 @@ class ldrawPart:
 
                     # check if subpart was already built and store in temp_geo
                     if part_name in self.subpart_cache:
-                        if info_group != 'print' or (info_group == 'print' and (color_code != '16' or 16 not in self.subpart_cache[part_name].primIntAttribValues('color_code'))):
+                        if info_group != 'print' or (info_group == 'print' and (color_code != '16' or 16 not in self.subpart_cache[part_name].primIntAttribValues('color_code'))): # make sure in separate mode that studs are processed correctly
                             temp_geo.copyPrims(self.subpart_cache[part_name])
                         else:
                             continue
@@ -395,7 +393,7 @@ class ldrawPart:
                 elif line[0] == '3':
                     color, static_color, color_code, mat_type = self.get_color(line[1])
                     points = self.extract_points(line, 3, winding_sub)
-                    if info != 'print' or (info == 'print' and (color_code != '16' or color_group != '16')):
+                    if info != 'print' or (info == 'print' and (color_code != '16' or color_group != '16')): # make sure in separate mode that studs are processed correctly
                         polys_data.append({
                             'points': points,
                             'color': color,
@@ -409,7 +407,7 @@ class ldrawPart:
                 elif line[0] == '4':
                     color, static_color, color_code, mat_type = self.get_color(line[1])
                     points = self.extract_points(line, 4, winding_sub)
-                    if info != 'print' or (info == 'print' and (color_code != '16' or color_group != '16')):
+                    if info != 'print' or (info == 'print' and (color_code != '16' or color_group != '16')): # make sure in separate mode that studs are processed correctly
                         polys_data.append({
                             'points': points,
                             'color': color,

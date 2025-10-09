@@ -18,12 +18,13 @@ Source individual parts or import entire models with one-button shelf tools!
 - **Gaps between bricks:** bricks can be slightly squashed to get tiny gaps between them
 - **Slope support** slopes are automatically detected so they can get a grainy texture
 - **Bevel and subdivison support:** geometry is automagically cleaned up as much as possible and LDraw lines are used to determine edges that need to be beveled to allow proper subdivision
-- **Auto caching** every imported part will automatically be cached in LDraw library; Importing times will decrease the more LDraw2Houdini is used.
+- **Auto caching** every imported part can automatically be cached; importing times will decrease the more LDraw2Houdini is used.
 - **Auto generate textures for prints/stickers** for modern cg workflows
 - **Auto uvs**
 - **Material properties:** simple config file to define softness, graininess and roughness for individual parts
 - **Solaris + Karma template scene** contains MaterialX shader showcasing how to create high quality renderings
 - **ACES colorspace:** LDraw colors are converted to acescg
+- **Command line turntable render of LDraw files:** No need to open Houdini
 
 ## Requirements
 - Houdini 21 (Py 3.11) - Other versions *might* work, see [Optional Step 8.](#optional_id)
@@ -54,7 +55,7 @@ Source individual parts or import entire models with one-button shelf tools!
 
 <a id="optional_id"></a>
 ### Optional Steps
-8. Make sure you have **Houdini 20.5 Python 3.11** installed. If you are running older or newer versions of Houdini and/or Python you have to rename the **python3.11libs** folder accordingly. I.e. if your Houdini Python version is 3.9 rename it to **python3.9libs** 
+8. Make sure you have the correct Houdini version installed (see requirements). If you are running older or newer versions of Houdini and/or Python you have to rename the **python3.11libs** folder accordingly. I.e. if your Houdini Python version is 3.9 rename it to **python3.9libs** 
 
 9. If you placed anything in different paths, adjust **ldraw2houdini.json** accordingly.
     - LDRAW2HOUDINI needs to point to the path of this plugin
@@ -73,7 +74,7 @@ Source individual parts or import entire models with one-button shelf tools!
                 ]
                 }
 
-10. Set LDRAW_CACHE to 0 or 1 to enable/disable caching. This will write bgeo files to **$LDRAW_LIB/bgeo**. Remember to delete this folder if you update your LDraw parts library.
+10. Set LDRAW_CACHE to 0 or 1 to enable/disable caching. This will write bgeo files to **$LDRAW_LIB/bgeo**. *Remember to delete this folder if you update your LDraw parts library!*
 11. If you install a new release and want to upgrade your hdas in an existing scene run the **Upgrade Brickini HDAs Shelf Tool**
 12. See [release notes](https://github.com/stefanmuller/ldraw2houdini/releases) for more details and explanations of specific features
 
@@ -84,7 +85,7 @@ Source individual parts or import entire models with one-button shelf tools!
 
 1. Create a **Brickini LDraw Part** node inside a Geometry node in SOP context
 2. Type a cool part number into the **Part** parameter: 2546p01
-3. Change **Material** parameter to red
+3. Change **Material Solid** parameter to red
 4. Look at that awesome classic parrot
 
 ![a parrot in the houdini viewport](/resources/help/brickini_ldraw_part.jpg)
@@ -107,6 +108,9 @@ Source individual parts or import entire models with one-button shelf tools!
 4. Render!
 
 ![lagoon lockup](/resources/help/brickini_ldraw_model.jpg)
+
+## Documentation
+https://brickini-tools.com/brickini_ldraw_part/
 
 ## Brickini
 ![island landscape generated with brickini](/resources/help/brickini_splash.jpg)
