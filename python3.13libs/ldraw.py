@@ -58,7 +58,7 @@ def get_matrix(line):
     return m4
 
 def strip_special_characters(input_string):
-    return re.sub('[^0-9a-zA-Z_-]+', '', input_string)
+    return re.sub(r'[^0-9a-zA-Z_-]+', '', input_string)
 
 def find_value_index(list_of_lists, search_value):
     for index, sublist in enumerate(list_of_lists):

@@ -442,7 +442,7 @@ class ldrawPart:
         m4_ldu = ldraw.xform_to_houdini()
 
         base_part = self.parm_part
-        print_str = re.search('[pP].*', self.parm_part)
+        print_str = re.search(r'[pP].*', self.parm_part)
         composite_str = re.search('[cC].*', self.parm_part)
         stud_processing = 1
 

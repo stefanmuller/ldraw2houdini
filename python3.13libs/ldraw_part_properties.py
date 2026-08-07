@@ -43,8 +43,8 @@ class ldrawPartProperties:
 
     def __call__(self):
         base_part = self.parm_part
-        base_part = re.sub('[a-zA-Z].*', '', base_part) # remove variant string
-        base_part = re.sub('\d+-', '', base_part) # remove model string from unofficial mpd part files
+        base_part = re.sub(r'[a-zA-Z].*', '', base_part) # remove variant string
+        base_part = re.sub(r'\d+-', '', base_part) # remove model string from unofficial mpd part files
 
         # slope attribute
         if base_part in self.part_properties('slopes'):

@@ -1,3 +1,8 @@
+## Star Apple v4.0.1
+
+- added Houdini 22/py3.13 compatibility. Use previous version if you need to stick to H21
+- updated Quadrangulate, camera, rendergeometrysettings nodes in template and hdas
+
 ## Star Apple v4.0.0
 
 #### Brickini LDraw Part
