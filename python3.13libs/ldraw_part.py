@@ -188,7 +188,7 @@ class ldrawPart:
         Efficiently find part in ldraw lib.
         '''
         # Normalize part name
-        part = str(PureWindowsPath(part)).replace(' ', '')
+        part = str(PureWindowsPath(part).as_posix()).replace(' ', '')
         part_lower = part.lower()
 
         # Try both original and lowercase

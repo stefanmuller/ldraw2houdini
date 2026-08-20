@@ -11,6 +11,7 @@
     <memberTool name="ldraw_model_dynamic"/>
     <memberTool name="upgrade_brickini_hdas"/>
     <memberTool name="reload_brickini_nodes"/>
+    <memberTool name="update_ldraw_material_menus"/>
   </toolshelf>
 
   <tool name="ldraw_part" label="LDraw Part" icon="brickini_import_part.png">
@@ -42,6 +43,15 @@ import importlib
 
 importlib.reload(brickini_utils)
 brickini_utils.reload_brickini_nodes()]]></script>
+  </tool>
+
+  <tool name="update_ldraw_material_menus" label="Update LDraw Material Menus" icon="brickini_upgrade.png">
+    <helpText><![CDATA["""Rebuild material menus based off ld_colors.json"""]]></helpText>
+    <script scriptType="python"><![CDATA[import brickini_utils
+import importlib
+
+importlib.reload(brickini_utils)
+brickini_utils.update_ldraw_material_menus()]]></script>
   </tool>
 
   <tool name="ldraw_model" label="LDraw Model" icon="brickini_import.png">

@@ -21,17 +21,6 @@
             0.07544170473612431
         ]
     },
-    "77": {
-        "category": "Solid",
-        "name": "Light_Pink",
-        "status": "retired",
-        "note": "Paradisa Pink - converted to acescg from Rylie Howerter Hex",
-        "rgb": [
-            0.6377321482124934,
-            0.4770405696294325,
-            0.45274185969019165
-        ]
-    },
     "33": {
         "category": "Transparent",
         "name": "Trans_Dark_Blue",
@@ -104,9 +93,9 @@
     },
     "40": {
         "category": "Transparent",
-        "name": "Trans_Black",
+        "name": "Trans_Brown",
         "status": "current",
-        "note": "this is now Transparent Brown and will probably retire at some point",
+        "note": "this used to be Transparent Black and will probably retire at some point",
         "rgb": [
             0.884,
             0.867068,

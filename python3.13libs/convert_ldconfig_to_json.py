@@ -57,3 +57,6 @@ color_dict = update_to_brickini_colors(color_dict)
 
 with open(ld_colors, 'w') as f:
     json.dump(color_dict, f, indent=4)
+
+# use below command to run this script from command line
+# "%PROGRAMFILES%\Side Effects Software\Houdini 22.0.368\bin\hython" "%USERPROFILE%\git\ldraw2houdini\python3.13libs\convert_ldconfig_to_json.py"

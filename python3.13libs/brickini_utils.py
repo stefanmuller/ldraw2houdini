@@ -1,5 +1,6 @@
 # pyright: reportMissingImports=false
 import hou
+import ldraw
 
 def find_hdas(filter_string):
     '''Return a list of hda files loaded into this Houdini session.'''
@@ -49,6 +50,105 @@ def upgrade_brickini_hdas():
     hdas = find_hdas(filter_string)
     hda_dict = highest_version(hdas)
     update_hdas(hda_dict, filter_string)
+
+def _material_menu_name(group):
+    return f"material_{group.lower().replace(' ', '_')}"
+
+def update_ldraw_material_menus():
+    """Rebuild material menus for brickini nodes"""
+    selected_nodes = hou.selectedNodes()
+    if len(selected_nodes) != 1:
+        raise hou.Error('Select only one hda.')
+
+    hda_node = selected_nodes[0]
+
+    node_type = hda_node.type().nameComponents()[2]       
+    if node_type not in ('brickini_ldraw_part', 'brickini_material'):
+        raise hou.Error('The selected hda is not brickini_ldraw_part or brickini_material.')
+
+    parser = hda_node.node('py_main')
+    if parser is None:
+        raise hou.Error('The selected hda has no py_main node.')
+
+    response = hou.ui.displayMessage(
+    "This updates the color parameters for the hda based on ld_colors.json. "
+    "Only proceed if you know what you are doing. If something goes wrong, you can get the original hda back from the otls/backup folder.",
+    buttons=("Continue", "Cancel"),
+    severity=hou.severityType.Warning,
+    default_choice=1,
+    close_choice=1,
+    )
+    if response != 0:
+        return
+
+    # do the actual thing if all checks pass
+    hda_node.allowEditingOfContents()
+    hda_def = hda_node.type().definition()
+    material_groups = ldraw.material_group()
+
+    # update parms on internal python script node first
+    parm_group = parser.parmTemplateGroup()
+    for parm_template in parm_group.entries():
+        if (
+            isinstance(parm_template, hou.MenuParmTemplate)
+            and 'material' in parm_template.name()
+            and parm_template.name() != 'material_group'
+        ):
+            parm_group.remove(parm_template.name())
+
+    previous_menu_name = 'material_group'
+    for index, group in enumerate(material_groups):
+        menu_name = _material_menu_name(group)
+        menu_template = hou.MenuParmTemplate(
+            name = menu_name,
+            label = f"Material {group}",
+            menu_items=(),
+            menu_labels=(),
+            menu_use_token=True,
+        )
+        menu_template.setConditional(
+            hou.parmCondType.HideWhen,
+            f'{{ material_group != {index} }}',
+        )
+        menu_template.setItemGeneratorScript(
+            f'import ldraw\nreturn ldraw.get_group_colors({group!r})',
+        )
+        menu_template.setItemGeneratorScriptLanguage(hou.scriptLanguage.Python)
+        menu_template.setDefaultValue(int(ldraw.get_group_colors(group)[0]))
+        parm_group.insertAfter(previous_menu_name, menu_template)
+        previous_menu_name = menu_name
+
+    parser.setParmTemplateGroup(parm_group)
+
+    # Update hda definition with the new color menus
+    hda_parm_group = hda_def.parmTemplateGroup()
+    for parm_template in hda_parm_group.entries():
+        if (
+            isinstance(parm_template, hou.MenuParmTemplate)
+            and 'material' in parm_template.name()
+            and parm_template.name() != 'material_group'
+        ):
+            hda_parm_group.remove(parm_template.name())
+
+    previous_menu_name = 'material_group'
+    for group in material_groups:
+        menu_name = _material_menu_name(group)
+        menu_template = parm_group.find(menu_name)
+        if menu_template is None:
+            continue
+        hda_parm_group.insertAfter(previous_menu_name, menu_template)
+        previous_menu_name = menu_name
+
+    hda_def.setParmTemplateGroup(hda_parm_group)
+
+    # link internal parm to hda parm
+    for group in material_groups:
+        menu_name = _material_menu_name(group)
+        menu_parm = parser.parm(menu_name)
+        if menu_parm is not None:
+            menu_parm.setExpression(f'ch("../{menu_name}")')
+
+    hda_def.updateFromNode(hda_node)
 
 def reload_brickini_nodes():
     '''

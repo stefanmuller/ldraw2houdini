@@ -1,7 +1,17 @@
-## Star Apple v4.0.1
+## Apple Juice v4.0.1
 
 - added Houdini 22/py3.13 compatibility. Use previous version if you need to stick to H21
 - updated Quadrangulate, camera, rendergeometrysettings nodes in template and hdas
+- updated ld_colors.json with latest colors from LDConfig.ldr
+- created new helper function to update color menus for brickin_material and brickini_ldraw_part based on ld_colors.json.
+- updated brickini_ldraw_part and brickini_material with latest colors
+- fixed unix compatibility - Thank you [Dan](https://github.com/dancbruce) for reporting and providing the solution
+
+#### Known Issues/Limitations
+- Textures can't be baked when in lops. One needs to create the part in SOPs, switch it to texture, and afterwards it should render in Karma when texture mode is used
+- Print handling set to texture breaks parts that don't have any. Ideally this setting is ignored and falls back to seperate behind the scenes
+- Texture mode not fully supported for baseplates. Studs don't receive correct colors
+- [6285 from OMR](https://library.ldraw.org/omr/sets/1209) errors with ldraw model shelf tool but works fine with dynamic version
 
 ## Star Apple v4.0.0
 

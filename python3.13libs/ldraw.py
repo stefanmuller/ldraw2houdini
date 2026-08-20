@@ -50,6 +50,22 @@ def material_group():
 
     return result_list
 
+def get_group_colors(group):
+    """Return LDraw colour codes and names for a material group."""
+    color_dict = color_lib()
+    result_list = []
+
+    # Iterate over the color data
+    for code, color_info in color_dict.items():
+        category = color_info['category']
+        name = color_info['name']
+
+        if category == group:
+            result_list.append(code)
+            result_list.append(name)
+
+    return result_list
+
 def get_matrix(line):
     '''Returns a houdini matrix from a line of an ldraw file.'''
     line = line[2:14]
