@@ -12,13 +12,13 @@ REM If a file is dropped onto this .bat, it will be rendered instead of the defa
 SET FILE_ARG=
 IF NOT "%~1"=="" SET FILE_ARG=-f "%~1"
 
-"%PROGRAMFILES%\Side Effects Software\Houdini 21.0.440\bin\hython" "%USERPROFILE%\git\ldraw2houdini\python3.11libs\ldraw_cli.py" %FILE_ARG%
+"%PROGRAMFILES%\Side Effects Software\Houdini 22.0.368\bin\hython" "%USERPROFILE%\git\ldraw2houdini\python3.13libs\ldraw_cli.py" %FILE_ARG%
 
 PAUSE
 
 REM You can get help by adding --help at the end like so:
-REM "%PROGRAMFILES%\Side Effects Software\Houdini 21.0.440\bin\hython" "%USERPROFILE%\git\ldraw2houdini\python3.11libs\ldraw_cli.py" --help
+REM "%PROGRAMFILES%\Side Effects Software\Houdini 22.0.368\bin\hython" "%USERPROFILE%\git\ldraw2houdini\python3.13libs\ldraw_cli.py" --help
 REM ----------------------------------------------------------
 REM To render with a custom amount of samples or a specific file try the following:
-REM "%PROGRAMFILES%\Side Effects Software\Houdini 21.0.440\bin\hython" "%USERPROFILE%\git\ldraw2houdini\python3.11libs\ldraw_cli.py" -s 16 -f "%USERPROFILE%\git\ldraw2houdini\resources\example_files\still_life_transparent.ldr"
+REM "%PROGRAMFILES%\Side Effects Software\Houdini 22.0.368\bin\hython" "%USERPROFILE%\git\ldraw2houdini\python3.13libs\ldraw_cli.py" -s 16 -f "%USERPROFILE%\git\ldraw2houdini\resources\example_files\still_life_transparent.ldr"
 
