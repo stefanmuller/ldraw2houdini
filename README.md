@@ -27,7 +27,7 @@ Source individual parts or import entire models with one-button shelf tools!
 - **Command line turntable render of LDraw files:** No need to open Houdini
 
 ## Requirements
-- Houdini 21 (Py 3.11) - Other versions *might* work, see [Optional Step 8.](#optional_id)
+- Houdini 22 (Py 3.13) - Other versions *might* work, see [Optional Step 8.](#optional_id)
 - SideFX Labs for auto uv feature
 - OCIO ACES colorspace configuration for Houdini
 
@@ -55,7 +55,7 @@ Source individual parts or import entire models with one-button shelf tools!
 
 <a id="optional_id"></a>
 ### Optional Steps
-8. Make sure you have the correct Houdini version installed (see requirements). If you are running older or newer versions of Houdini and/or Python you have to rename the **python3.11libs** folder accordingly. I.e. if your Houdini Python version is 3.9 rename it to **python3.9libs** 
+8. Make sure you have the correct Houdini version installed (see requirements). If you are running older or newer versions of Houdini and/or Python you have to rename the **python3.XXlibs** folder accordingly. I.e. if your Houdini Python version is 3.9 rename it to **python3.9libs** 
 
 9. If you placed anything in different paths, adjust **ldraw2houdini.json** accordingly.
     - LDRAW2HOUDINI needs to point to the path of this plugin
